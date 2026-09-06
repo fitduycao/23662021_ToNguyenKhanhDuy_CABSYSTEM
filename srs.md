@@ -1,68 +1,59 @@
-# TÀI LIỆU ĐẶC TẢ YÊU CẦU NGHIỆP VỤ & HỆ THỐNG (SRS & BR SPECIFICATION)
-## DỰ ÁN: NỀN TẢNG ĐẶT XE TRỰC TUYẾN - CAB SYSTEM
-
-* **Khách hàng:** Công ty ABC
-* **Thời gian thực hiện:** 07 tuần
-* **Phiên bản:** MVP 1.0
-* **Người thực hiện:** Business Analyst Team
-* **Quy ước mã hiệu:**
-  * **BR (Business Requirement):** Yêu cầu & Mục tiêu nghiệp vụ cấp cao.
-  * **BRU (Business Rule):** Quy tắc & Ràng buộc nghiệp vụ chi tiết.
-  * **Trạng thái:** `Confirmed` (Đã thống nhất) | `TBD` (To Be Determined - Chờ khách hàng làm rõ).
-
----
-
-## 1. DANH SÁCH BÊN LIÊN QUAN & VAI TRÒ (STAKEHOLDER LIST)
-
 | Stakeholder (Bên liên quan) | Vai trò |
 | :--- | :--- |
-| **Ban Giám đốc (Management / Sponsor)** | Định hướng dự án, duyệt ngân sách/tiến độ (7 tuần), chốt các chính sách nghiệp vụ và theo dõi báo cáo doanh thu, hiệu quả hoạt động. |
-| **Khách hàng (Customer / Rider)** | Đăng ký/đăng nhập, tạo yêu cầu đặt xe, theo dõi chuyến đi theo thời gian thực, thực hiện thanh toán và đánh giá tài xế. |
-| **Tài xế (Driver)** | Cập nhật hồ sơ/phương tiện, bật trạng thái sẵn sàng, nhận/từ chối cuốc xe, chia sẻ vị trí GPS và cập nhật tiến trình chuyến đi. |
-| **Nhân viên Vận hành (Operations Staff)** | Giám sát các chuyến đi đang chạy, kiểm tra trạng thái tài xế, hỗ trợ xử lý sự cố/lỗi chuyến và tra cứu lịch sử giao dịch. |
-| **Nhân viên Quản trị Hệ thống (System Admin)** | Quản lý phân quyền tài khoản, giám sát bảo mật hệ thống và theo dõi nhật ký kiểm toán (audit log). |
-| **Cổng Thanh toán (Payment Gateway Provider)** | Đối tác bên thứ ba xử lý các giao dịch thanh toán điện tử an toàn, không để lộ thông tin thẻ nhạy cảm trên hệ thống. |
-| **Nhà cung cấp Thông báo (Notification Provider)** | Đối tác bên thứ ba hỗ trợ phát thông báo tự động (Push notification, SMS) tới khách hàng và tài xế. |
-| **Đội ngũ Kỹ thuật / Phát triển (Dev / QA Team)** | Thiết kế kiến trúc chịu tải, lập trình hệ thống theo yêu cầu và triển khai giải pháp trong thời hạn 7 tuần. |
-| **Chuyên viên Phân tích Nghiệp vụ (Business Analyst)** | Khảo sát, làm rõ các quy tắc còn thiếu (tính cước, tiêu chí tìm tài xế, hủy chuyến, timeout) và đặc tả yêu cầu cho đội kỹ thuật. |
+| **Ban Giám đốc (Management / Sponsor)** | Định hướng dự án, duyệt ngân sách/tiến độ (7 tuần), chốt các chính sách nghiệp vụ và theo dõi báo cáo doanh thu, hiệu quả hoạt động.[cite: 1] |
+| **Khách hàng (Customer / Rider)** | Đăng ký/đăng nhập, tạo yêu cầu đặt xe, theo dõi chuyến đi theo thời gian thực, thực hiện thanh toán và đánh giá tài xế.[cite: 1] |
+| **Tài xế (Driver)** | Cập nhật hồ sơ/phương tiện, bật trạng thái sẵn sàng, nhận/từ chối cuốc xe, chia sẻ vị trí GPS và cập nhật tiến trình chuyến đi.[cite: 1] |
+| **Nhân viên Vận hành (Operations Staff)** | Giám sát các chuyến đi đang chạy, kiểm tra trạng thái tài xế, hỗ trợ xử lý sự cố/lỗi chuyến và tra cứu lịch sử giao dịch.[cite: 1] |
+| **Nhân viên Quản trị Hệ thống (System Admin)** | Quản lý phân quyền tài khoản, giám sát bảo mật hệ thống và theo dõi nhật ký kiểm toán (audit log).[cite: 1] |
+| **Cổng Thanh toán (Payment Gateway Provider)** | Đối tác bên thứ ba xử lý các giao dịch thanh toán điện tử an toàn, không để lộ thông tin thẻ nhạy cảm trên hệ thống.[cite: 1] |
+| **Nhà cung cấp Thông báo (Notification Provider)** | Đối tác bên thứ ba hỗ trợ phát thông báo tự động (Push notification, SMS) tới khách hàng và tài xế.[cite: 1] |
+| **Đội ngũ Kỹ thuật / Phát triển (Dev / QA Team)** | Thiết kế kiến trúc chịu tải, lập trình hệ thống theo yêu cầu và triển khai giải pháp trong thời hạn 7 tuần.[cite: 1] |
+| **Chuyên viên Phân tích Nghiệp vụ (Business Analyst)** | Khảo sát, làm rõ các quy tắc còn thiếu (tính cước, tiêu chí tìm tài xế, hủy chuyến, timeout) và đặc tả yêu cầu cho đội kỹ thuật.[cite: 1] |
 
----
-
-## 2. MA TRẬN PHÂN TÍCH BÊN LIÊN QUAN (STAKEHOLDER MATRIX)
 
 ```mermaid
 flowchart TD
-    subgraph Matrix ["MA TRẬN STAKEHOLDER (POWER vs INTEREST)"]
-        direction TB
+    subgraph Matrix ["MA TRẬN STAKEHOLDER (POWER vs INTEREST)"]
+        direction TB
 
-        subgraph HighPower ["QUYỀN LỰC CAO (HIGH POWER)"]
-            direction LR
-            subgraph Q2 ["GIỮ HÀI LÒNG (Keep Satisfied)"]
-                P1["Cổng Thanh toán (Payment Gateway)"]
-                P2["Đối tác Thông báo (Notification)"]
-            end
+        subgraph HighPower ["QUYỀN LỰC CAO (HIGH POWER)"]
+            direction LR
+            subgraph Q2 ["GIỮ HÀI LÒNG (Keep Satisfied)"]
+                P1["Cổng Thanh toán (Payment Gateway)"]
+                P2["Đối tác Thông báo (Notification)"]
+            end
 
-            subgraph Q1 ["QUẢN LÝ CHẶT CHẼ (Manage Closely)"]
-                M1["Ban Giám đốc ABC"]
-                M2["Đội ngũ Kỹ thuật (Dev/QA)"]
-                M3["Đội ngũ BA"]
-            end
-        end
+            subgraph Q1 ["QUẢN LÝ CHẶT CHẼ (Manage Closely)"]
+                M1["Ban Giám đốc ABC"]
+                M2["Đội ngũ Kỹ thuật (Dev/QA)"]
+                M3["Đội ngũ BA"]
+            end
+        end
 
-        subgraph LowPower ["QUYỀN LỰC THẤP (LOW POWER)"]
-            direction LR
-            subgraph Q3 ["GIÁM SÁT TỐI THIỂU (Monitor)"]
-                N1["Hạ tầng viễn thông / Mạng phụ trợ"]
-            end
+        subgraph LowPower ["QUYỀN LỰC THẤP (LOW POWER)"]
+            direction LR
+            subgraph Q3 ["GIÁM SÁT TỐI THIỂU (Monitor)"]
+                N1["Hạ tầng mạng / Bên phụ trợ khác"]
+            end
 
-            subgraph Q4 ["CẬP NHẬT THÔNG TIN (Keep Informed)"]
-                I1["Khách hàng (Customer)"]
-                I2["Tài xế (Driver)"]
-                I3["Nhân viên Vận hành (Operations)"]
-                I4["Quản trị Hệ thống (Admin)"]
-            end
-        end
-    end
+            subgraph Q4 ["CẬP NHẬT THÔNG TIN (Keep Informed)"]
+                I1["Khách hàng (Customer)"]
+                I2["Tài xế (Driver)"]
+                I3["Nhân viên Vận hành (Operations)"]
+                I4["Quản trị Hệ thống (Admin)"]
+            end
+        end
+    end
+
+````
+
+# CAB SYSTEM - CHUYỂN ĐỔI YÊU CẦU THÀNH MỤC TIÊU NGHIỆP VỤ & BUSINESS RULES
+
+**Dự án:** Nền tảng đặt xe CAB System  
+**Phiên bản:** MVP 1.0 (Kế hoạch triển khai 7 tuần)  
+**Tác giả:** Senior Business Analyst  
+**Ngày lập:** 06/09/2026  
+**Trạng thái quy tắc:** `Confirmed` (Đã xác nhận) | `TBD` (To Be Determined - Chờ khách hàng làm rõ)
 
 ---
 
@@ -102,10 +93,10 @@ flowchart TD
 #### `BR-BOOKING-01`: Ràng buộc thông tin khởi tạo cuốc xe
 * **Mục tiêu:** Tránh các yêu cầu rác và đảm bảo đủ dữ liệu để tính toán lộ trình.
 * **Quy tắc:** Để gửi yêu cầu đặt xe thành công, Customer bắt buộc phải cung cấp:
-  1. Tọa độ điểm đón hợp lệ.
-  2. Tọa độ điểm đến hợp lệ (khác tọa độ đón tối thiểu 100 mét).
-  3. Lựa chọn loại phương tiện (Xe 4 chỗ, Xe máy...).
-  4. Phương thức thanh toán mặc định cho chuyến đi.
+  1. Tọa độ điểm đón hợp lệ.
+  2. Tọa độ điểm đến hợp lệ (khác tọa độ đón tối thiểu 100 mét).
+  3. Lựa chọn loại phương tiện (Xe 4 chỗ, Xe máy...).
+  4. Phương thức thanh toán mặc định cho chuyến đi.
 * **Trạng thái:** `Confirmed`.
 
 #### `BR-BOOKING-02`: Giới hạn số chuyến xe đồng thời
@@ -120,34 +111,34 @@ flowchart TD
 #### `BR-DISPATCH-01`: Tiêu chí lọc Driver khả dụng
 * **Mục tiêu:** Chỉ gửi tín hiệu mời cuốc cho tài xế thực sự sẵn sàng phục vụ.
 * **Quy tắc:** Một Driver chỉ được đưa vào danh sách ứng viên nhận chuyến khi thỏa mãn đồng thời 4 điều kiện:
-  1. Tài khoản ở trạng thái `ACTIVE`.
-  2. Đang bật chế độ nhận việc (`ONLINE`).
-  3. Đang không thực hiện bất kỳ chuyến xe nào khác (`is_busy = false`).
-  4. Vị trí GPS được cập nhật trong vòng tối đa **60 giây** gần nhất.
+  1. Tài khoản ở trạng thái `ACTIVE`.
+  2. Đang bật chế độ nhận việc (`ONLINE`).
+  3. Đang không thực hiện bất kỳ chuyến xe nào khác (`is_busy = false`).
+  4. Vị trí GPS được cập nhật trong vòng tối đa **60 giây** gần nhất.
 * **Trạng thái:** `Confirmed`.
 
 #### `BR-DISPATCH-02`: Quy tắc ưu tiên và Bán kính quét cuốc
 * **Mục tiêu:** Rút ngắn tối đa thời gian chờ đón khách (ETA).
 * **Quy tắc:** Hệ thống tự động quét các Driver khả dụng trong bán kính ban đầu tính từ điểm đón khách. Thứ tự mời cuốc được sắp xếp ưu tiên theo khoảng cách di chuyển từ vị trí tài xế đến điểm đón (ngắn nhất trước).
 * **Trạng thái:** `TBD`.
-* **Câu hỏi BA cần làm rõ:** 
-  > *Bán kính quét ban đầu là bao nhiêu km (ví dụ: 3km)? Khi không tìm thấy tài xế, bán kính mở rộng thêm bao nhiêu km (ví dụ: 5km, 7km)? Ưu tiên tuyệt đối theo khoảng cách (ETA) hay có kết hợp điểm đánh giá sao (Rating) của tài xế?*
+* **Câu hỏi BA cần làm rõ:** 
+  > *Bán kính quét ban đầu là bao nhiêu km (ví dụ: 3km)? Khi không tìm thấy tài xế, bán kính mở rộng thêm bao nhiêu km (ví dụ: 5km, 7km)? Ưu tiên tuyệt đối theo khoảng cách (ETA) hay có kết hợp điểm đánh giá sao (Rating) của tài xế?*
 
 #### `BR-DISPATCH-03`: Thời hạn phản hồi nhận cuốc (Timeout)
 * **Mục tiêu:** Tránh làm gián đoạn thời gian chờ của khách hàng khi tài xế không tương tác.
 * **Quy tắc:** Khi nhận được tín hiệu mời chuyến, Driver có đúng **N giây** đếm ngược để bấm "Chấp nhận". Nếu Driver bấm "Từ chối" hoặc đồng hồ về 0 (Timeout), hệ thống lập tức loại trừ Driver này khỏi phiên tìm kiếm hiện tại và chuyển tiếp tín hiệu mời chuyến đến Driver thỏa mãn điều kiện tiếp theo.
 * **Trạng thái:** `TBD`.
-* **Câu hỏi BA cần làm rõ:** 
-  > *Thời gian đếm ngược chính xác để tài xế phản hồi là bao nhiêu giây (ví dụ: 15 giây, 20 giây hay 30 giây)?*
+* **Câu hỏi BA cần làm rõ:** 
+  > *Thời gian đếm ngược chính xác để tài xế phản hồi là bao nhiêu giây (ví dụ: 15 giây, 20 giây hay 30 giây)?*
 
 #### `BR-DISPATCH-04`: Giới hạn tìm kiếm và Dừng cuốc xe
 * **Mục tiêu:** Đóng luồng xử lý và thông báo dứt khoát cho khách khi thị trường không có nguồn cung.
 * **Quy tắc:** Hệ thống tự động dừng tìm kiếm và chuyển trạng thái chuyến xe sang `NO_DRIVER_FOUND` khi:
-  - Đã gửi lời mời qua tối đa **M tài xế liên tiếp** nhưng không ai nhận, HOẶC
-  - Tổng thời gian tìm kiếm của cuốc xe vượt quá **T phút**.
+  - Đã gửi lời mời qua tối đa **M tài xế liên tiếp** nhưng không ai nhận, HOẶC
+  - Tổng thời gian tìm kiếm của cuốc xe vượt quá **T phút**.
 * **Trạng thái:** `TBD`.
-* **Câu hỏi BA cần làm rõ:** 
-  > *Giới hạn M (số tài xế tối đa thử gán, ví dụ: 3 hay 5 tài xế) và thời gian timeout tổng T (ví dụ: 2 phút hay 3 phút) là bao nhiêu?*
+* **Câu hỏi BA cần làm rõ:** 
+  > *Giới hạn M (số tài xế tối đa thử gán, ví dụ: 3 hay 5 tài xế) và thời gian timeout tổng T (ví dụ: 2 phút hay 3 phút) là bao nhiêu?*
 
 ---
 
@@ -156,17 +147,17 @@ flowchart TD
 #### `BR-STATE-01`: Tính đơn hướng của Vòng đời chuyến xe (FSM)
 * **Mục tiêu:** Bảo toàn tính toàn vẹn dữ liệu vận hành và ngăn chặn sai lệch trạng thái.
 * **Quy tắc:** Vòng đời chuyến xe tuân thủ nghiêm ngặt máy trạng thái hữu hạn (FSM) một chiều:
-  $$\text{REQUESTED} \longrightarrow \text{MATCHED} \longrightarrow \text{PICKING\_UP} \longrightarrow \text{IN\_PROGRESS} \longrightarrow \text{COMPLETED}$$
-  Tuyệt đối không cho phép nhảy cóc trạng thái hoặc quay ngược trạng thái trước đó.
+  $$\text{REQUESTED} \longrightarrow \text{MATCHED} \longrightarrow \text{PICKING\_UP} \longrightarrow \text{IN\_PROGRESS} \longrightarrow \text{COMPLETED}$$
+  Tuyệt đối không cho phép nhảy cóc trạng thái hoặc quay ngược trạng thái trước đó.
 * **Trạng thái:** `Confirmed`.
 
 #### `BR-STATE-02`: Quyền cập nhật trạng thái thực tế
 * **Mục tiêu:** Buộc tài xế chịu trách nhiệm về mốc thời gian và vị trí thực tế của hành trình.
-* **Quy tắc:** 
-  - Trạng thái `MATCHED`: Hệ thống tự động cập nhật khi Driver bấm "Chấp nhận".
-  - Trạng thái `PICKING_UP`: Do Driver chủ động bấm khi đã lái xe đến điểm đón khách.
-  - Trạng thái `IN_PROGRESS`: Do Driver chủ động bấm sau khi xác nhận khách đã lên xe an toàn.
-  - Trạng thái `COMPLETED`: Do Driver chủ động bấm khi đã dừng xe tại điểm trả khách.
+* **Quy tắc:** 
+  - Trạng thái `MATCHED`: Hệ thống tự động cập nhật khi Driver bấm "Chấp nhận".
+  - Trạng thái `PICKING_UP`: Do Driver chủ động bấm khi đã lái xe đến điểm đón khách.
+  - Trạng thái `IN_PROGRESS`: Do Driver chủ động bấm sau khi xác nhận khách đã lên xe an toàn.
+  - Trạng thái `COMPLETED`: Do Driver chủ động bấm khi đã dừng xe tại điểm trả khách.
 * **Trạng thái:** `Confirmed`.
 
 ---
@@ -176,10 +167,10 @@ flowchart TD
 #### `BR-PRICING-01`: Công thức cấu thành cước phí chuyến đi
 * **Mục tiêu:** Đảm bảo công thức tính tiền minh bạch, tự động và đúng thỏa thuận kinh doanh.
 * **Quy tắc:** Cước phí chuyến đi được tính toán tự động dựa trên bảng giá cấu hình theo loại xe:
-  $$\text{Tổng cước} = \text{Giá mở cửa} + (\text{Quãng đường thực tế (km)} \times \text{Đơn giá/km}) + (\text{Thời gian di chuyển (phút)} \times \text{Đơn giá/phút})$$
+  $$\text{Tổng cước} = \text{Giá mở cửa} + (\text{Quãng đường thực tế (km)} \times \text{Đơn giá/km}) + (\text{Thời gian di chuyển (phút)} \times \text{Đơn giá/phút})$$
 * **Trạng thái:** `TBD`.
-* **Câu hỏi BA cần làm rõ:** 
-  > *Trong MVP có tính cước thời gian (theo phút) không hay chỉ tính theo số km thực tế? Bảng giá mở cửa và đơn giá từng km cho từng loại xe (4 chỗ, 7 chỗ, xe máy) cụ thể là bao nhiêu? Có quy định mức cước tối thiểu cho một chuyến đi không?*
+* **Câu hỏi BA cần làm rõ:** 
+  > *Trong MVP có tính cước thời gian (theo phút) không hay chỉ tính theo số km thực tế? Bảng giá mở cửa và đơn giá từng km cho từng loại xe (4 chỗ, 7 chỗ, xe máy) cụ thể là bao nhiêu? Có quy định mức cước tối thiểu cho một chuyến đi không?*
 
 #### `BR-PAY-01`: Xác nhận Thanh toán Tiền mặt (Cash)
 * **Mục tiêu:** Thu hồi công nợ trực tiếp ngay tại thời điểm kết thúc hành trình.
@@ -202,12 +193,12 @@ flowchart TD
 
 #### `BR-CANCEL-01`: Điều kiện Hủy chuyến và Phí hủy (Cancellation Fee)
 * **Mục tiêu:** Ngăn chặn việc hủy chuyến tùy tiện gây thiệt hại chi phí xăng xe và thời gian của các bên.
-* **Quy tắc:** 
-  - Khách hàng được quyền hủy chuyến miễn phí khi hệ thống đang ở trạng thái `REQUESTED`.
-  - Khách hàng hoặc tài xế có thể hủy chuyến khi ở trạng thái `MATCHED` hoặc `PICKING_UP` kèm theo việc bắt buộc chọn lý do hủy.
+* **Quy tắc:** 
+  - Khách hàng được quyền hủy chuyến miễn phí khi hệ thống đang ở trạng thái `REQUESTED`.
+  - Khách hàng hoặc tài xế có thể hủy chuyến khi ở trạng thái `MATCHED` hoặc `PICKING_UP` kèm theo việc bắt buộc chọn lý do hủy.
 * **Trạng thái:** `TBD`.
-* **Câu hỏi BA cần làm rõ:** 
-  > *Nếu khách hàng hủy chuyến sau khi tài xế đã di chuyển đón quá 3 phút (hoặc tài xế đã đến nơi), khách hàng có bị phạt phí hủy chuyến không? Mức phí phạt là bao nhiêu và xử lý truy thu bằng cách nào trong phiên bản MVP?*
+* **Câu hỏi BA cần làm rõ:** 
+  > *Nếu khách hàng hủy chuyến sau khi tài xế đã di chuyển đón quá 3 phút (hoặc tài xế đã đến nơi), khách hàng có bị phạt phí hủy chuyến không? Mức phí phạt là bao nhiêu và xử lý truy thu bằng cách nào trong phiên bản MVP?*
 
 ---
 
@@ -228,10 +219,10 @@ flowchart TD
 # ĐẶC TẢ YÊU CẦU NGHIỆP VỤ & HỆ THỐNG (SRS - MVP SCOPE)
 ## TẬP TRUNG 02 MODULE: QUẢN LÝ KHÁCH HÀNG & QUẢN LÝ TÀI XẾ
 
-**Dự án:** Nền tảng đặt xe CAB System  
-**Phiên bản:** MVP 1.0 (Giới hạn 2 phân hệ cốt lõi trong thời gian 7 tuần)  
-**Vai trò:** Senior Business Analyst  
-**Ngày cập nhật:** 06/09/2026  
+**Dự án:** Nền tảng đặt xe CAB System  
+**Phiên bản:** MVP 1.0 (Giới hạn 2 phân hệ cốt lõi trong thời gian 7 tuần)  
+**Vai trò:** Senior Business Analyst  
+**Ngày cập nhật:** 06/09/2026  
 
 ---
 
@@ -277,24 +268,24 @@ flowchart TD
 #### US-CUS-01: Kiểm tra ràng buộc trước khi gửi cuốc xe
 * **User Story:** Là một **Hành khách (Customer)**, tôi muốn **hệ thống kiểm tra tính hợp lệ của tài khoản khi tôi bấm đặt xe**, để **tôi không bị xung đột cuốc xe hoặc tạo các yêu cầu ảo ngoài ý muốn.**
 * **Acceptance Criteria (AC):**
-  * `AC-01.1:` Nếu khách hàng đang có 01 cuốc xe ở các trạng thái `REQUESTED`, `MATCHED`, `PICKING_UP`, `IN_PROGRESS`, hệ thống chặn không cho tạo cuốc mới và hiển thị thông báo: *"Bạn đang có chuyến xe chưa hoàn thành. Vui lòng kiểm tra lại hành trình hiện tại."* (Theo `BR-BOOKING-02`).
-  * `AC-01.2:` Khách hàng bắt buộc phải nhập đủ tọa độ điểm đón và điểm trả với khoảng cách tối thiểu từ 100m trở lên trước khi gửi yêu cầu (Theo `BR-BOOKING-01`).
+  * `AC-01.1:` Nếu khách hàng đang có 01 cuốc xe ở các trạng thái `REQUESTED`, `MATCHED`, `PICKING_UP`, `IN_PROGRESS`, hệ thống chặn không cho tạo cuốc mới và hiển thị thông báo: *"Bạn đang có chuyến xe chưa hoàn thành. Vui lòng kiểm tra lại hành trình hiện tại."* (Theo `BR-BOOKING-02`).
+  * `AC-01.2:` Khách hàng bắt buộc phải nhập đủ tọa độ điểm đón và điểm trả với khoảng cách tối thiểu từ 100m trở lên trước khi gửi yêu cầu (Theo `BR-BOOKING-01`).
 * **Priority:** Must Have.
 
 #### US-CUS-02: Giám sát tài khoản khách hàng từ phía Vận hành
 * **User Story:** Là một **Nhân viên Vận hành (Operation Staff)**, tôi muốn **tra cứu hồ sơ khách hàng theo SĐT và có quyền tạm khóa tài khoản**, để **xử lý các trường hợp tài khoản spam hoặc vi phạm quy chế an toàn.**
 * **Acceptance Criteria (AC):**
-  * `AC-02.1:` Cho phép tìm kiếm chính xác khách hàng qua Số điện thoại hoặc Mã khách hàng (`Customer_ID`).
-  * `AC-02.2:` Hiển thị đầy đủ: Ngày tạo, Tổng số chuyến đã đặt, Tỷ lệ hủy chuyến, Trạng thái tài khoản (`ACTIVE`, `SUSPENDED`).
-  * `AC-02.3:` Nhân viên có quyền bấm "Khóa tài khoản" kèm ô nhập lý do bắt buộc (tối thiểu 10 ký tự). Tài khoản bị khóa sẽ bị đăng xuất ngay lập tức.
+  * `AC-02.1:` Cho phép tìm kiếm chính xác khách hàng qua Số điện thoại hoặc Mã khách hàng (`Customer_ID`).
+  * `AC-02.2:` Hiển thị đầy đủ: Ngày tạo, Tổng số chuyến đã đặt, Tỷ lệ hủy chuyến, Trạng thái tài khoản (`ACTIVE`, `SUSPENDED`).
+  * `AC-02.3:` Nhân viên có quyền bấm "Khóa tài khoản" kèm ô nhập lý do bắt buộc (tối thiểu 10 ký tự). Tài khoản bị khóa sẽ bị đăng xuất ngay lập tức.
 * **Priority:** Must Have.
 
 ---
 
 ### 3.3. Cấu trúc Dữ liệu Khách hàng (Data Schema)
-  - Operation Staff có quyền tra cứu thông tin chi tiết toàn bộ lịch sử các cuốc xe.
-  - Operation Staff được quyền thực hiện lệnh **Hủy cuốc cưỡng bức (Force Cancel)** kèm nhập lý do nghiệp vụ bắt buộc đối với các chuyến xe đang treo (`REQUESTED`, `MATCHED`, `PICKING_UP`, `IN_PROGRESS`).
-  - Operation Staff **không được phép** chỉnh sửa số tiền cước của những chuyến đi đã chuyển trạng thái `PAID`.
+  - Operation Staff có quyền tra cứu thông tin chi tiết toàn bộ lịch sử các cuốc xe.
+  - Operation Staff được quyền thực hiện lệnh **Hủy cuốc cưỡng bức (Force Cancel)** kèm nhập lý do nghiệp vụ bắt buộc đối với các chuyến xe đang treo (`REQUESTED`, `MATCHED`, `PICKING_UP`, `IN_PROGRESS`).
+  - Operation Staff **không được phép** chỉnh sửa số tiền cước của những chuyến đi đã chuyển trạng thái `PAID`.
 * **Trạng thái:** `Confirmed`.
 
 
@@ -303,10 +294,10 @@ flowchart TD
 * **Tên quy tắc:** Giới hạn phân loại phương tiện trong giai đoạn MVP.
 * **Mục tiêu doanh nghiệp:** Giảm tải độ phức tạp vận hành và tập trung vào phân khúc phương tiện phổ biến nhất để kiểm chứng thị trường.
 * **Nội dung quy tắc:**
-  - Hệ thống chỉ cung cấp hiển thị và hỗ trợ đặt đúng **02 phân loại phương tiện**:
-    1. `MOTORBIKE` (Xe máy 2 bánh - chở tối đa 01 khách).
-    2. `CAR_4_SEATS` (Ô tô 4 chỗ tiêu chuẩn - chở tối đa 04 khách).
-  - Các dòng xe khác (`CAR_7_SEATS`, xe cao cấp `PREMIUM`, xe giao hàng `DELIVERY`) hoàn toàn **Out-of-Scope** ở bản MVP 1.0.
+  - Hệ thống chỉ cung cấp hiển thị và hỗ trợ đặt đúng **02 phân loại phương tiện**:
+    1. `MOTORBIKE` (Xe máy 2 bánh - chở tối đa 01 khách).
+    2. `CAR_4_SEATS` (Ô tô 4 chỗ tiêu chuẩn - chở tối đa 04 khách).
+  - Các dòng xe khác (`CAR_7_SEATS`, xe cao cấp `PREMIUM`, xe giao hàng `DELIVERY`) hoàn toàn **Out-of-Scope** ở bản MVP 1.0.
 * **Trạng thái:** `Confirmed`.
 
 ---
@@ -316,11 +307,11 @@ flowchart TD
 * **Tên quy tắc:** Hiển thị giá cước ước tính theo từng loại xe.
 * **Mục tiêu doanh nghiệp:** Minh bạch chi phí, giúp khách hàng tự cân đối nhu cầu và khả năng chi trả, hạn chế hủy chuyến do hiểu nhầm giá.
 * **Nội dung quy tắc:**
-  - Khi khách hàng đã nhập đủ điểm đón và điểm trả hợp lệ:
-    - Hệ thống bắt buộc tính toán đồng thời và hiển thị giá ước tính (`Estimated_Fare`) cho cả 2 loại xe (`MOTORBIKE` và `CAR_4_SEATS`) trên cùng một màn hình lựa chọn.
-    - Công thức ước tính áp dụng đơn giá riêng biệt theo cấu hình của từng loại xe:
-      $$\text{Estimated\_Fare}_{\text{type}} = \text{Base\_Fare}_{\text{type}} + (\text{Estimated\_Distance} \times \text{Rate\_Per\_Km}_{\text{type}})$$
-  - Giá hiển thị phải được làm tròn đến hàng nghìn đồng (VND).
+  - Khi khách hàng đã nhập đủ điểm đón và điểm trả hợp lệ:
+    - Hệ thống bắt buộc tính toán đồng thời và hiển thị giá ước tính (`Estimated_Fare`) cho cả 2 loại xe (`MOTORBIKE` và `CAR_4_SEATS`) trên cùng một màn hình lựa chọn.
+    - Công thức ước tính áp dụng đơn giá riêng biệt theo cấu hình của từng loại xe:
+      $$\text{Estimated\_Fare}_{\text{type}} = \text{Base\_Fare}_{\text{type}} + (\text{Estimated\_Distance} \times \text{Rate\_Per\_Km}_{\text{type}})$$
+  - Giá hiển thị phải được làm tròn đến hàng nghìn đồng (VND).
 * **Trạng thái:** `Confirmed`.
 
 ---
@@ -330,10 +321,10 @@ flowchart TD
 * **Tên quy tắc:** Chọn loại xe bắt buộc khi gửi Booking.
 * **Mục tiêu doanh nghiệp:** Tránh tạo các cuốc xe không xác định phương tiện, đảm bảo thuật toán điều phối gán đúng tài xế sở hữu loại xe phù hợp.
 * **Nội dung quy tắc:**
-  - Khách hàng bắt buộc phải chọn duy nhất **01 loại xe** tại một thời điểm đặt chuyến.
-  - Loại xe được chọn mặc định ban đầu (`Default Selection`) là loại xe mà khách hàng đã đặt ở chuyến đi thành công gần nhất (nếu là khách mới: mặc định chọn `MOTORBIKE`).
-  - Nút "Xác nhận đặt xe" chỉ kích hoạt (enable) khi đã có 01 loại xe được chọn.
-  - Khi yêu cầu được gửi đi, mã loại xe đã chọn (`Vehicle_Type`) sẽ được gắn cố định vào bản ghi `Booking` và **không được phép thay đổi** trong suốt vòng đời cuốc xe.
+  - Khách hàng bắt buộc phải chọn duy nhất **01 loại xe** tại một thời điểm đặt chuyến.
+  - Loại xe được chọn mặc định ban đầu (`Default Selection`) là loại xe mà khách hàng đã đặt ở chuyến đi thành công gần nhất (nếu là khách mới: mặc định chọn `MOTORBIKE`).
+  - Nút "Xác nhận đặt xe" chỉ kích hoạt (enable) khi đã có 01 loại xe được chọn.
+  - Khi yêu cầu được gửi đi, mã loại xe đã chọn (`Vehicle_Type`) sẽ được gắn cố định vào bản ghi `Booking` và **không được phép thay đổi** trong suốt vòng đời cuốc xe.
 * **Trạng thái:** `Confirmed`.
 
 ---
@@ -343,13 +334,13 @@ flowchart TD
 * **Tên quy tắc:** Kiểm tra sơ bộ số lượng tài xế theo loại xe tại khu vực đón.
 * **Mục tiêu doanh nghiệp:** Quản trị kỳ vọng của khách hàng, tránh để khách đặt cuốc ở những vùng không có sẵn xe loại đó.
 * **Nội dung quy tắc:**
-  - Khi khách hàng chọn một loại xe, hệ thống đếm nhanh số lượng tài xế thỏa mãn điều kiện `BR-DRIVER-01` sở hữu đúng loại xe đó trong bán kính quy định (ví dụ: 3km).
-  - Nếu số tài xế khả dụng = 0: 
-    - Cho phép khách đặt tiếp nhưng hiển thị nhãn cảnh báo: *"Khu vực này hiện đang có ít tài xế [Loại xe], thời gian tìm xe có thể lâu hơn dự kiến."*
+  - Khi khách hàng chọn một loại xe, hệ thống đếm nhanh số lượng tài xế thỏa mãn điều kiện `BR-DRIVER-01` sở hữu đúng loại xe đó trong bán kính quy định (ví dụ: 3km).
+  - Nếu số tài xế khả dụng = 0: 
+    - Cho phép khách đặt tiếp nhưng hiển thị nhãn cảnh báo: *"Khu vực này hiện đang có ít tài xế [Loại xe], thời gian tìm xe có thể lâu hơn dự kiến."*
 * **Trạng thái:** `TBD`.
-* **Câu hỏi BA cần làm rõ:** 
-  > *Trong bản MVP 7 tuần, có cần hiển thị cảnh báo này ngay trên màn hình chọn xe không, hay cứ cho phép khách bấm đặt xe rồi để thuật toán tự quét và trả về `NO_DRIVER_FOUND` nếu hết xe?*
-  
+* **Câu hỏi BA cần làm rõ:** 
+  > *Trong bản MVP 7 tuần, có cần hiển thị cảnh báo này ngay trên màn hình chọn xe không, hay cứ cho phép khách bấm đặt xe rồi để thuật toán tự quét và trả về `NO_DRIVER_FOUND` nếu hết xe?*
+  
 
 # Business Requirements – CAB System
 
@@ -391,4 +382,4 @@ Các yêu cầu như báo cáo quản trị nâng cao, nhiều nhà cung cấp t
 
 
 
-
+ hãy sửa lại và viết lại toàn bộ theo yêu cầu của bài và sửa code lại cho toi 
