@@ -1,1 +1,44 @@
+graph LR
+    %% Actors
+    Customer(["fa:fa-user Customer"])
+    Driver(["fa:fa-id-card Driver"])
+    Ops(["fa:fa-headset Operation Staff"])
+    PaymentGW[["fa:fa-credit-card Payment Gateway"]]
+    NotiService[["fa:fa-bell Notification Provider"]]
 
+    %% CAB System Boundary
+    subgraph CAB_System ["CAB System (MVP Scope)"]
+        UC01((UC-01: Đăng nhập / Định danh))
+        UC02((UC-02: Ước tính cước & Đặt xe))
+        UC03((UC-03: Bật/Tắt trạng thái Online))
+        UC04((UC-04: Điều phối & Nhận cuốc))
+        UC05((UC-05: Cập nhật tiến độ chuyến đi))
+        UC06((UC-06: Hoàn thành & Chốt cước))
+        UC07((UC-07: Xử lý thanh toán Tiền mặt/Online))
+        UC08((UC-08: Đánh giá & Phản hồi))
+        UC09((UC-09: Giám sát & Hủy chuyến khẩn cấp))
+    end
+
+    %% Customer Connections
+    Customer --> UC01
+    Customer --> UC02
+    Customer --> UC07
+    Customer --> UC08
+    Customer -.->|Hủy khi chưa đón| UC09
+
+    %% Driver Connections
+    Driver --> UC01
+    Driver --> UC03
+    Driver --> UC04
+    Driver --> UC05
+    Driver --> UC06
+    Driver --> UC07
+
+    %% Operations Connections
+    Ops --> UC01
+    Ops --> UC09
+
+    %% External Systems Interactions
+    UC04 -.->|Push notification| NotiService
+    UC05 -.->|Thông báo vị trí| NotiService
+    UC07 <-->|Giao dịch thanh toán số| PaymentGW
