@@ -45,17 +45,7 @@ flowchart TD
         end
     end
 
-    classDef q1 fill:#ffebee,stroke:#c62828,stroke-width:2px;
-    classDef q2 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
-    classDef q3 fill:#f5f5f5,stroke:#9e9e9e,stroke-width:2px;
-    classDef q4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-
-    class M1,M2,M3 q1;
-    class P1,P2 q2;
-    class N1 q3;
-    class I1,I2,I3,I4 q4;
-
-
+```` ``` ````
 
 # CAB SYSTEM - CHUYỂN ĐỔI YÊU CẦU THÀNH MỤC TIÊU NGHIỆP VỤ & BUSINESS RULES
 
