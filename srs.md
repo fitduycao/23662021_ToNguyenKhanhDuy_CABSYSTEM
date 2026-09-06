@@ -379,6 +379,7 @@ Các yêu cầu như báo cáo quản trị nâng cao, nhiều nhà cung cấp t
 
 
 
+```mermaid
 sequenceDiagram
     autonumber
     actor C as Khách hàng (Customer)
