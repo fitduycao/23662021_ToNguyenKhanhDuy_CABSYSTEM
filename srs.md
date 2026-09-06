@@ -430,52 +430,73 @@ sequenceDiagram
     S->>S: Cập nhật điểm xếp hạng trung bình của tài xế
 ```
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor C as Khách hàng (Customer)
-    participant S as Hệ thống CAB (CAB System)
-    actor D as Tài xế (Driver)
-    participant P as Cổng Thanh toán (Payment Gateway)
+# DANH MỤC YÊU CẦU CHỨC NĂNG (FUNCTIONAL REQUIREMENTS - CAB SYSTEM)
 
-    %% Giai đoạn 1: Đặt xe & Tìm tài xế
-    Note over C, S: 1. Đặt xe & Điều phối
-    C->>S: Nhập điểm đón, điểm đến, chọn loại xe & gửi yêu cầu
-    S->>S: Kiểm tra tính hợp lệ & quét tài xế khả dụng gần nhất
-    S->>D: Phát tín hiệu mời nhận chuyến (kèm đếm ngược Timeout)
-    
-    alt Tài xế chấp nhận
-        D->>S: Bấm "Chấp nhận"
-        S->>C: Thông báo: Tài xế đã nhận chuyến (kèm ETA và vị trí)
-    else Tài xế từ chối hoặc hết giờ (Timeout)
-        D-->>S: Bấm "Từ chối" hoặc hết giờ
-        S->>S: Tự động chuyển tín hiệu sang tài xế khả dụng tiếp theo
-    end
+## 1. MODULE QUẢN LÝ ĐỊNH DANH & TÀI KHOẢN (AUTHENTICATION & USER PROFILE)
 
-    %% Giai đoạn 2: Thực hiện hành trình
-    Note over C, D: 2. Vòng đời chuyến đi
-    D->>S: Cập nhật "Đã đến điểm đón"
-    S->>C: Gửi thông báo: Xe đã đến điểm đón
-    D->>S: Xác nhận "Đã đón khách" (Bắt đầu di chuyển)
-    D->>S: Gửi tọa độ GPS định kỳ (Cập nhật vị trí trên bản đồ)
-    D->>S: Bấm "Hoàn thành chuyến đi" (Đã đến điểm trả)
+| Mã FR | Tên chức năng | Tác nhân (Actor) | Mô tả chi tiết chức năng | Độ ưu tiên |
+| :--- | :--- | :--- | :--- | :---: |
+| **FR-AUTH-01** | Đăng ký & Đăng nhập | Khách hàng, Tài xế | Hệ thống cho phép người dùng đăng ký, đăng nhập tài khoản bằng số điện thoại và xác thực mã OTP/mật khẩu[cite: 1]. | **Must** |
+| **FR-AUTH-02** | Cập nhật hồ sơ cá nhân | Khách hàng, Tài xế | Cho phép xem và chỉnh sửa thông tin cá nhân cơ bản (Họ tên, email, ảnh đại diện)[cite: 1]. | **Must** |
+| **FR-AUTH-03** | Quản lý thông tin xe | Tài xế, Quản trị | Tài xế cập nhật thông tin phương tiện (biển số, loại xe); nhân viên vận hành kiểm tra và duyệt hồ sơ xe[cite: 1]. | **Must** |
+| **FR-AUTH-04** | Phân quyền truy cập | Quản trị hệ thống | Hệ thống phân quyền dựa trên vai trò (RBAC) để nhân viên thông thường không truy cập được các chức năng nhạy cảm[cite: 1]. | **Must** |
 
-    %% Giai đoạn 3: Tính cước & Thanh toán
-    Note over C, P: 3. Tính cước & Thanh toán
-    S->>S: Tự động tính cước phí thực tế dựa trên lộ trình
-    S->>C: Hiển thị hóa đơn thanh toán
-    S->>D: Hiển thị tổng tiền cần thu
+---
 
-    alt Thanh toán Tiền mặt (Cash)
-        C->>D: Trả tiền mặt trực tiếp cho tài xế
-        D->>S: Bấm "Xác nhận đã nhận tiền"
-    else Thanh toán Điện tử (Digital Payment)
-        C->>P: Xác thực và thanh toán qua thẻ/ví điện tử
-        P-->>S: Phản hồi Webhook: Giao dịch thành công
-    end
+## 2. MODULE ĐẶT XE & THEO DÕI HÀNH TRÌNH (RIDE BOOKING & TRACKING)
 
-    %% Giai đoạn 4: Đánh giá
-    Note over C, S: 4. Đánh giá chất lượng
-    S->>C: Hiển thị màn hình chấm điểm dịch vụ
-    C->>S: Gửi đánh giá (1 - 5 sao) và nhận xét
-    S->>S: Cập nhật điểm xếp hạng trung bình của tài xế
+| Mã FR | Tên chức năng | Tác nhân (Actor) | Mô tả chi tiết chức năng | Độ ưu tiên |
+| :--- | :--- | :--- | :--- | :---: |
+| **FR-BOOK-01** | Chọn lộ trình & Loại xe | Khách hàng | Khách hàng nhập điểm đón, điểm đến, chọn loại xe (ô tô, xe máy) và xem giá ước tính trước khi đặt[cite: 1]. | **Must** |
+| **FR-BOOK-02** | Gửi yêu cầu đặt xe | Khách hàng | Khách hàng gửi yêu cầu gọi xe lên hệ thống; hệ thống ghi nhận và kích hoạt trạng thái tìm tài xế[cite: 1]. | **Must** |
+| **FR-BOOK-03** | Theo dõi xe & Thời gian đến | Khách hàng | Hiển thị vị trí xe đang di chuyển trên bản đồ, thông tin tài xế và thời gian dự kiến đón (ETA)[cite: 1]. | **Must** |
+| **FR-BOOK-04** | Xem lịch sử cuốc xe | Khách hàng | Khách hàng xem lại danh sách các chuyến đi trong quá khứ, chi tiết hóa đơn cước và thông tin tài xế[cite: 1]. | **Must** |
+| **FR-BOOK-05** | Hủy yêu cầu đặt xe | Khách hàng | Khách hàng có thể hủy yêu cầu khi đang tìm tài xế hoặc sau khi có tài xế nhận cuốc (kèm chọn lý do hủy)[cite: 1]. | **Should** |
+
+---
+
+## 3. MODULE ĐIỀU PHỐI & THỰC HIỆN CHUYẾN ĐI (DISPATCHING & DRIVER OPERATIONS)
+
+| Mã FR | Tên chức năng | Tác nhân (Actor) | Mô tả chi tiết chức năng | Độ ưu tiên |
+| :--- | :--- | :--- | :--- | :---: |
+| **FR-DISP-01** | Bật/tắt trạng thái nhận việc | Tài xế | Tài xế chủ động bật trạng thái sẵn sàng làm việc (Online) hoặc nghỉ ngơi (Offline)[cite: 1]. | **Must** |
+| **FR-DISP-02** | Thuật toán ghép cuốc tự động | Hệ thống | Quét và ưu tiên gán cuốc xe cho tài xế phù hợp, gần điểm đón nhất dựa trên toạ độ GPS và trạng thái sẵn sàng[cite: 1]. | **Must** |
+| **FR-DISP-03** | Tiếp nhận & Phản hồi cuốc | Tài xế | Nhận thông báo cuốc xe và bấm "Chấp nhận" hoặc "Từ chối" trong một khoảng thời gian giới hạn (Timeout)[cite: 1]. | **Must** |
+| **FR-DISP-04** | Tự động chuyển cuốc kế tiếp | Hệ thống | Tự động chuyển lời mời cuốc xe sang tài xế phù hợp tiếp theo nếu tài xế đầu tiên từ chối hoặc không phản hồi[cite: 1]. | **Must** |
+| **FR-DISP-05** | Thông báo hết tài xế | Hệ thống | Tự động gửi thông báo rõ ràng cho khách hàng khi không tìm được tài xế nhận cuốc sau chu trình quét[cite: 1]. | **Must** |
+| **FR-DISP-06** | Cập nhật tiến trình chuyến | Tài xế | Cập nhật tuần tự các mốc: Đã đến điểm đón $\rightarrow$ Đã đón khách $\rightarrow$ Đang di chuyển $\rightarrow$ Hoàn thành chuyến[cite: 1]. | **Must** |
+| **FR-DISP-07** | Truyền tọa độ GPS | Tài xế (App) | Ứng dụng tự động gửi tọa độ vị trí hiện tại của tài xế về hệ thống theo chu kỳ để hỗ trợ định vị[cite: 1]. | **Must** |
+
+---
+
+## 4. MODULE TÍNH CƯỚC, THANH TOÁN & ĐÁNH GIÁ (FARE, PAYMENT & RATING)
+
+| Mã FR | Tên chức năng | Tác nhân (Actor) | Mô tả chi tiết chức năng | Độ ưu tiên |
+| :--- | :--- | :--- | :--- | :---: |
+| **FR-PAY-01** | Tự động tính cước | Hệ thống | Tự động chốt số tiền khách hàng phải trả sau khi hoàn thành chuyến dựa vào loại dịch vụ và lộ trình thực tế[cite: 1]. | **Must** |
+| **FR-PAY-02** | Thanh toán tiền mặt | Khách hàng, Tài xế | Khách hàng trả tiền mặt cho tài xế; tài xế bấm xác nhận đã nhận tiền trên app để kết thúc giao dịch[cite: 1]. | **Must** |
+| **FR-PAY-03** | Tích hợp Cổng thanh toán | Khách hàng, Cổng TT | Thanh toán qua đối tác điện tử bên ngoài; hệ thống CAB không lưu thông tin thẻ/tài khoản nhạy cảm[cite: 1]. | **Must** |
+| **FR-PAY-04** | Xử lý lỗi thanh toán | Hệ thống, Khách hàng | Hiển thị thông báo thất bại và hướng dẫn khách hàng thanh toán lại hoặc chuyển sang tiền mặt khi lỗi giao dịch[cite: 1]. | **Must** |
+| **FR-RATE-01** | Đánh giá & Phản hồi | Khách hàng | Khách hàng chấm điểm (1 - 5 sao) và để lại phản hồi đánh giá tài xế sau khi hoàn thành chuyến đi[cite: 1]. | **Should** |
+
+---
+
+## 5. MODULE TRUYỀN PHÁT THÔNG BÁO (NOTIFICATION ENGINE)
+
+| Mã FR | Tên chức năng | Tác nhân (Actor) | Mô tả chi tiết chức năng | Độ ưu tiên |
+| :--- | :--- | :--- | :--- | :---: |
+| **FR-NOTI-01** | Thông báo cho Khách hàng | Hệ thống | Phát thông báo khi: Yêu cầu được nhận, Có tài xế nhận chuyến, Xe đến điểm đón, Hoàn thành và Kết quả thanh toán[cite: 1]. | **Must** |
+| **FR-NOTI-02** | Thông báo cho Tài xế | Hệ thống | Gửi thông báo tức thời khi có lời mời cuốc xe mới hoặc khi chuyến đi bị khách hàng thao tác hủy[cite: 1]. | **Must** |
+| **FR-NOTI-03** | Hỗ trợ mở rộng kênh gửi | Hệ thống | Cho phép mở rộng thêm các kênh phát thông báo (SMS, Push Notification) độc lập mà không ảnh hưởng luồng chính[cite: 1]. | **Could** |
+
+---
+
+## 6. MODULE QUẢN TRỊ & BÁO CÁO VẬN HÀNH (ADMINISTRATION & REPORTING)
+
+| Mã FR | Tên chức năng | Tác nhân (Actor) | Mô tả chi tiết chức năng | Độ ưu tiên |
+| :--- | :--- | :--- | :--- | :---: |
+| **FR-ADM-01** | Quản lý người dùng & xe | Nhân viên vận hành | Tra cứu, duyệt tài khoản tài xế mới, quản lý phương tiện và mở/khóa tài khoản vi phạm[cite: 1]. | **Must** |
+| **FR-ADM-02** | Giám sát chuyến đi trực tiếp | Nhân viên vận hành | Theo dõi danh sách các cuốc xe đang diễn ra trên bản đồ và kiểm tra trạng thái hoạt động của tài xế[cite: 1]. | **Must** |
+| **FR-ADM-03** | Hỗ trợ xử lý cuốc lỗi | Nhân viên vận hành | Can thiệp giải quyết các trường hợp chuyến xe bị treo lỗi, hỗ trợ hủy cuốc sự cố và tra cứu lịch sử giao dịch[cite: 1]. | **Must** |
+| **FR-ADM-04** | Báo cáo doanh thu & Vận hành | Ban giám đốc, Admin | Cung cấp báo cáo thống kê: Tổng số lượng chuyến, doanh thu, tỷ lệ hoàn thành cuốc, tỷ lệ hủy và hiệu suất tài xế[cite: 1]. | **Should** |
+| **FR-ADM-05** | Ghi nhận nhật ký kiểm toán | Hệ thống | Tự động ghi lại nhật ký (Audit Log) các thao tác quản trị quan trọng để phục vụ tra soát sự cố[cite: 1]. | **Must** |
