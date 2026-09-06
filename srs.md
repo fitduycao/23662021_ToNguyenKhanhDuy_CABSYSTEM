@@ -1,15 +1,34 @@
+# TÀI LIỆU ĐẶC TẢ YÊU CẦU NGHIỆP VỤ & HỆ THỐNG (SRS & BR SPECIFICATION)
+## DỰ ÁN: NỀN TẢNG ĐẶT XE TRỰC TUYẾN - CAB SYSTEM
+
+* **Khách hàng:** Công ty ABC
+* **Thời gian thực hiện:** 07 tuần
+* **Phiên bản:** MVP 1.0
+* **Người thực hiện:** Business Analyst Team
+* **Quy ước mã hiệu:**
+  * **BR (Business Requirement):** Yêu cầu & Mục tiêu nghiệp vụ cấp cao.
+  * **BRU (Business Rule):** Quy tắc & Ràng buộc nghiệp vụ chi tiết.
+  * **Trạng thái:** `Confirmed` (Đã thống nhất) | `TBD` (To Be Determined - Chờ khách hàng làm rõ).
+
+---
+
+## 1. DANH SÁCH BÊN LIÊN QUAN & VAI TRÒ (STAKEHOLDER LIST)
+
 | Stakeholder (Bên liên quan) | Vai trò |
 | :--- | :--- |
-| **Ban Giám đốc (Management / Sponsor)** | Định hướng dự án, duyệt ngân sách/tiến độ (7 tuần), chốt các chính sách nghiệp vụ và theo dõi báo cáo doanh thu, hiệu quả hoạt động.[cite: 1] |
-| **Khách hàng (Customer / Rider)** | Đăng ký/đăng nhập, tạo yêu cầu đặt xe, theo dõi chuyến đi theo thời gian thực, thực hiện thanh toán và đánh giá tài xế.[cite: 1] |
-| **Tài xế (Driver)** | Cập nhật hồ sơ/phương tiện, bật trạng thái sẵn sàng, nhận/từ chối cuốc xe, chia sẻ vị trí GPS và cập nhật tiến trình chuyến đi.[cite: 1] |
-| **Nhân viên Vận hành (Operations Staff)** | Giám sát các chuyến đi đang chạy, kiểm tra trạng thái tài xế, hỗ trợ xử lý sự cố/lỗi chuyến và tra cứu lịch sử giao dịch.[cite: 1] |
-| **Nhân viên Quản trị Hệ thống (System Admin)** | Quản lý phân quyền tài khoản, giám sát bảo mật hệ thống và theo dõi nhật ký kiểm toán (audit log).[cite: 1] |
-| **Cổng Thanh toán (Payment Gateway Provider)** | Đối tác bên thứ ba xử lý các giao dịch thanh toán điện tử an toàn, không để lộ thông tin thẻ nhạy cảm trên hệ thống.[cite: 1] |
-| **Nhà cung cấp Thông báo (Notification Provider)** | Đối tác bên thứ ba hỗ trợ phát thông báo tự động (Push notification, SMS) tới khách hàng và tài xế.[cite: 1] |
-| **Đội ngũ Kỹ thuật / Phát triển (Dev / QA Team)** | Thiết kế kiến trúc chịu tải, lập trình hệ thống theo yêu cầu và triển khai giải pháp trong thời hạn 7 tuần.[cite: 1] |
-| **Chuyên viên Phân tích Nghiệp vụ (Business Analyst)** | Khảo sát, làm rõ các quy tắc còn thiếu (tính cước, tiêu chí tìm tài xế, hủy chuyến, timeout) và đặc tả yêu cầu cho đội kỹ thuật.[cite: 1] |
+| **Ban Giám đốc (Management / Sponsor)** | Định hướng dự án, duyệt ngân sách/tiến độ (7 tuần), chốt các chính sách nghiệp vụ và theo dõi báo cáo doanh thu, hiệu quả hoạt động. |
+| **Khách hàng (Customer / Rider)** | Đăng ký/đăng nhập, tạo yêu cầu đặt xe, theo dõi chuyến đi theo thời gian thực, thực hiện thanh toán và đánh giá tài xế. |
+| **Tài xế (Driver)** | Cập nhật hồ sơ/phương tiện, bật trạng thái sẵn sàng, nhận/từ chối cuốc xe, chia sẻ vị trí GPS và cập nhật tiến trình chuyến đi. |
+| **Nhân viên Vận hành (Operations Staff)** | Giám sát các chuyến đi đang chạy, kiểm tra trạng thái tài xế, hỗ trợ xử lý sự cố/lỗi chuyến và tra cứu lịch sử giao dịch. |
+| **Nhân viên Quản trị Hệ thống (System Admin)** | Quản lý phân quyền tài khoản, giám sát bảo mật hệ thống và theo dõi nhật ký kiểm toán (audit log). |
+| **Cổng Thanh toán (Payment Gateway Provider)** | Đối tác bên thứ ba xử lý các giao dịch thanh toán điện tử an toàn, không để lộ thông tin thẻ nhạy cảm trên hệ thống. |
+| **Nhà cung cấp Thông báo (Notification Provider)** | Đối tác bên thứ ba hỗ trợ phát thông báo tự động (Push notification, SMS) tới khách hàng và tài xế. |
+| **Đội ngũ Kỹ thuật / Phát triển (Dev / QA Team)** | Thiết kế kiến trúc chịu tải, lập trình hệ thống theo yêu cầu và triển khai giải pháp trong thời hạn 7 tuần. |
+| **Chuyên viên Phân tích Nghiệp vụ (Business Analyst)** | Khảo sát, làm rõ các quy tắc còn thiếu (tính cước, tiêu chí tìm tài xế, hủy chuyến, timeout) và đặc tả yêu cầu cho đội kỹ thuật. |
 
+---
+
+## 2. MA TRẬN PHÂN TÍCH BÊN LIÊN QUAN (STAKEHOLDER MATRIX)
 
 ```mermaid
 flowchart TD
@@ -33,7 +52,7 @@ flowchart TD
         subgraph LowPower ["QUYỀN LỰC THẤP (LOW POWER)"]
             direction LR
             subgraph Q3 ["GIÁM SÁT TỐI THIỂU (Monitor)"]
-                N1["Hạ tầng mạng / Bên phụ trợ khác"]
+                N1["Hạ tầng viễn thông / Mạng phụ trợ"]
             end
 
             subgraph Q4 ["CẬP NHẬT THÔNG TIN (Keep Informed)"]
@@ -44,16 +63,6 @@ flowchart TD
             end
         end
     end
-
-```` ``` ````
-
-# CAB SYSTEM - CHUYỂN ĐỔI YÊU CẦU THÀNH MỤC TIÊU NGHIỆP VỤ & BUSINESS RULES
-
-**Dự án:** Nền tảng đặt xe CAB System  
-**Phiên bản:** MVP 1.0 (Kế hoạch triển khai 7 tuần)  
-**Tác giả:** Senior Business Analyst  
-**Ngày lập:** 06/09/2026  
-**Trạng thái quy tắc:** `Confirmed` (Đã xác nhận) | `TBD` (To Be Determined - Chờ khách hàng làm rõ)
 
 ---
 
