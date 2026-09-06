@@ -323,3 +323,96 @@ quadrantChart
 * **Trạng thái:** `TBD`.
 * **Câu hỏi BA cần làm rõ:** 
   > *Trong bản MVP 7 tuần, có cần hiển thị cảnh báo này ngay trên màn hình chọn xe không, hay cứ cho phép khách bấm đặt xe rồi để thuật toán tự quét và trả về `NO_DRIVER_FOUND` nếu hết xe?*
+  
+
+
+
+
+
+
+
+  sequenceDiagram
+    autonumber
+    box rgb(235, 248, 255) Customer Lane
+    actor C as Khách hàng (Customer)
+    end
+
+    box rgb(240, 244, 248) CAB System Engine Lane
+    participant S as CAB System Engine
+    end
+
+    box rgb(240, 253, 244) Driver Lane
+    actor D as Đối tác Tài xế (Driver)
+    end
+
+    box rgb(254, 243, 199) External Payment Lane
+    participant PG as Cổng Thanh toán (Payment GW)
+    end
+
+    %% BƯỚC 1: KHỞI TẠO VÀ CHỌN XE
+    rect rgb(245, 245, 245)
+    Note over C,S: GIAI ĐOẠN 1: KHỞI TẠO LỘ TRÌNH & CHỌN XE
+    C->>S: 1. Nhập điểm đón/trả hợp lệ (BR-BOOKING-01)
+    S->>S: 2. Kiểm tra điều kiện: Khách không có cuốc chạy dở (BR-BOOKING-02)
+    S->>C: 3. Trả về cước ước tính cho MOTORBIKE và CAR_4_SEATS (BR-VEHICLE-SEL-02)
+    C->>S: 4. Chọn 1 loại xe & bấm "Xác nhận đặt xe" (BR-VEHICLE-SEL-03)
+    S->>S: 5. Tạo cuốc xe trạng thái REQUESTED
+    end
+
+    %% BƯỚC 2: ĐIỀU PHỐI VÀ GHÉP CHUYẾN
+    rect rgb(238, 242, 255)
+    Note over S,D: GIAI ĐOẠN 2: ĐIỀU PHỐI VÀ PHẢN HỒI NHẬN CUỐC
+    loop Quét tài xế khả dụng (BR-DISPATCH-01)
+        S->>S: 6. Lọc tài xế: Online, rảnh việc, GPS < 60s
+        alt Không còn tài xế nào (Hết lượt quét)
+            S-->>C: 7a. Thông báo: "Không tìm thấy xe phù hợp" -> Kết thúc (BR-DISPATCH-04)
+        else Tìm thấy ứng viên gần nhất
+            S->>D: 7b. Bắn tín hiệu mời cuốc kèm đếm ngược 20s (BR-DISPATCH-03)
+            alt Driver Từ chối hoặc Hết 20s (Timeout)
+                D-->>S: 8a. Không nhận -> Loại trừ tài xế này, tiếp tục vòng lặp
+            else Driver bấm "Chấp nhận"
+                D->>S: 8b. Nhận cuốc -> Cập nhật trạng thái MATCHED
+            end
+        end
+    end
+    S-->>C: 9. Gửi thông tin tài xế, xe, biển số & vị trí di chuyển
+    end
+
+    %% BƯỚC 3: THỰC HIỆN HÀNH TRÌNH
+    rect rgb(240, 253, 244)
+    Note over C,D: GIAI ĐOẠN 3: THỰC HIỆN CHUYẾN ĐI (BR-STATE-01, 02)
+    D->>S: 10. Đến nơi đón -> Bấm "Đã đến" (Trạng thái: PICKING_UP)
+    S-->>C: 11. Báo chuông: "Tài xế đã đến điểm đón"
+    C->>D: 12. Khách lên xe
+    D->>S: 13. Bấm "Bắt đầu chuyến" (Trạng thái: IN_PROGRESS)
+    D->>S: 14. Đến nơi trả -> Bấm "Hoàn thành chuyến" (Trạng thái: COMPLETED)
+    end
+
+    %% BƯỚC 4: TÍNH CƯỚC VÀ THANH TOÁN
+    rect rgb(255, 251, 235)
+    Note over C,PG: GIAI ĐOẠN 4: TÍNH CƯỚC & THANH TOÁN
+    S->>S: 15. Tính cước thực tế theo km & loại xe (BR-PRICING-01)
+    S-->>D: 16. Hiển thị hóa đơn chốt cước
+    S-->>C: 17. Hiển thị hóa đơn thanh toán
+    
+    alt Phương thức Tiền mặt (Cash - BR-PAY-01)
+        C->>D: 18a. Đưa tiền mặt trực tiếp
+        D->>S: 19a. Bấm "Đã thu đủ tiền mặt" -> Ghi nhận PAID
+    else Phương thức Điện tử (E-Payment - BR-PAY-02)
+        S->>PG: 18b. Gửi lệnh trừ tiền
+        alt Cổng thanh toán thành công
+            PG-->>S: 19b. Webhook: Trừ tiền thành công -> Ghi nhận PAID
+        else Lỗi trừ tiền / Timeout (BR-PAY-03)
+            PG-->>S: 19c. Báo thất bại
+            S-->>C: 20c. Cảnh báo lỗi trừ thẻ -> Chuyển sang thu Tiền mặt
+            C->>D: 21c. Trả tiền mặt thay thế -> Driver xác nhận
+        end
+    end
+    end
+
+    %% BƯỚC 5: ĐÁNH GIÁ
+    rect rgb(245, 245, 245)
+    Note over C,S: GIAI ĐOẠN 5: ĐÁNH GIÁ CHẤT LƯỢNG (BR-RATE-01)
+    S-->>C: 22. Hiển thị biểu mẫu đánh giá 1-5 sao
+    C->>S: 23. Gửi đánh giá -> Hệ thống ghi nhận và đóng cuốc xe
+    end
