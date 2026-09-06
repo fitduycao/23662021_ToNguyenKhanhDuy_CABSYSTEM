@@ -14,24 +14,27 @@
 
 ## Stakeholder Matrix - CAB System
 
-```mermaid
 quadrantChart
-    title Stakeholder Matrix - CAB System
-    x-axis Muc do quan tam thap --> Muc do quan tam cao
-    y-axis Muc do anh huong thap --> Muc do anh huong cao
+    title STAKEHOLDER MATRIX - CAB SYSTEM (Power vs Interest)
+    x-axis "Mức độ Quan tâm Thấp (Low Interest)" --> "Mức độ Quan tâm Cao (High Interest)"
+    y-axis "Quyền lực / Ảnh hưởng Thấp (Low Power)" --> "Quyền lực / Ảnh hưởng Cao (High Power)"
+    quadrant-1 "QUẢN LÝ CHẶT CHẼ (Manage Closely)"
+    quadrant-2 "GIỮ HÀI LÒNG (Keep Satisfied)"
+    quadrant-3 "GIÁM SÁT TỐI THIỂU (Monitor)"
+    quadrant-4 "CẬP NHẬT THÔNG TIN (Keep Informed)"
+    "Ban Giám đốc ABC": [0.88, 0.92]
+    "Đội ngũ BA": [0.92, 0.72]
+    "Đội ngũ Kỹ thuật (Dev/QA)": [0.85, 0.65]
+    "Cổng Thanh toán (Payment Gateway)": [0.38, 0.75]
+    "Đối tác Thông báo (Notification)": [0.32, 0.58]
+    "Khách hàng (Customer)": [0.88, 0.35]
+    "Tài xế (Driver)": [0.90, 0.38]
+    "Nhân viên Vận hành (Operations)": [0.82, 0.42]
+    "Nhân viên Quản trị Hệ thống": [0.70, 0.48]
 
-    quadrant-1 Manage Closely
-    quadrant-2 Keep Satisfied
-    quadrant-3 Monitor
-    quadrant-4 Keep Informed
 
-    Customer: [0.85, 0.85]
-    Driver: [0.80, 0.75]
-    Operation Staff: [0.70, 0.65]
-    Ban lanh dao: [0.35, 0.75]
-    Payment Provider: [0.75, 0.30]
-    Notification Provider: [0.70, 0.20]
-```
+
+
 
 # CAB SYSTEM - CHUYỂN ĐỔI YÊU CẦU THÀNH MỤC TIÊU NGHIỆP VỤ & BUSINESS RULES
 
