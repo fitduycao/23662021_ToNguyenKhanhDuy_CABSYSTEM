@@ -11,24 +11,49 @@
 | **Chuyên viên Phân tích Nghiệp vụ (Business Analyst)** | Khảo sát, làm rõ các quy tắc còn thiếu (tính cước, tiêu chí tìm tài xế, hủy chuyến, timeout) và đặc tả yêu cầu cho đội kỹ thuật.[cite: 1] |
 
 
-quadrantChart
-    title STAKEHOLDER MATRIX - CAB SYSTEM (Power vs Interest)
-    x-axis "Mức độ Quan tâm Thấp (Low Interest)" --> "Mức độ Quan tâm Cao (High Interest)"
-    y-axis "Quyền lực / Ảnh hưởng Thấp (Low Power)" --> "Quyền lực / Ảnh hưởng Cao (High Power)"
-    quadrant-1 "QUẢN LÝ CHẶT CHẼ (Manage Closely)"
-    quadrant-2 "GIỮ HÀI LÒNG (Keep Satisfied)"
-    quadrant-3 "GIÁM SÁT TỐI THIỂU (Monitor)"
-    quadrant-4 "CẬP NHẬT THÔNG TIN (Keep Informed)"
-    "Ban Giám đốc ABC": [0.88, 0.92]
-    "Đội ngũ BA": [0.92, 0.72]
-    "Đội ngũ Kỹ thuật (Dev/QA)": [0.85, 0.65]
-    "Cổng Thanh toán (Payment Gateway)": [0.38, 0.75]
-    "Đối tác Thông báo (Notification)": [0.32, 0.58]
-    "Khách hàng (Customer)": [0.88, 0.35]
-    "Tài xế (Driver)": [0.90, 0.38]
-    "Nhân viên Vận hành (Operations)": [0.82, 0.42]
-    "Nhân viên Quản trị Hệ thống": [0.70, 0.48]
+```mermaid
+flowchart TD
+    subgraph Matrix ["MA TRẬN STAKEHOLDER (POWER vs INTEREST)"]
+        direction TB
 
+        subgraph HighPower ["QUYỀN LỰC CAO (HIGH POWER)"]
+            direction LR
+            subgraph Q2 ["GIỮ HÀI LÒNG (Keep Satisfied)"]
+                P1["Cổng Thanh toán (Payment Gateway)"]
+                P2["Đối tác Thông báo (Notification)"]
+            end
+
+            subgraph Q1 ["QUẢN LÝ CHẶT CHẼ (Manage Closely)"]
+                M1["Ban Giám đốc ABC"]
+                M2["Đội ngũ Kỹ thuật (Dev/QA)"]
+                M3["Đội ngũ BA"]
+            end
+        end
+
+        subgraph LowPower ["QUYỀN LỰC THẤP (LOW POWER)"]
+            direction LR
+            subgraph Q3 ["GIÁM SÁT TỐI THIỂU (Monitor)"]
+                N1["Hạ tầng mạng / Bên phụ trợ khác"]
+            end
+
+            subgraph Q4 ["CẬP NHẬT THÔNG TIN (Keep Informed)"]
+                I1["Khách hàng (Customer)"]
+                I2["Tài xế (Driver)"]
+                I3["Nhân viên Vận hành (Operations)"]
+                I4["Quản trị Hệ thống (Admin)"]
+            end
+        end
+    end
+
+    classDef q1 fill:#ffebee,stroke:#c62828,stroke-width:2px;
+    classDef q2 fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
+    classDef q3 fill:#f5f5f5,stroke:#9e9e9e,stroke-width:2px;
+    classDef q4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+
+    class M1,M2,M3 q1;
+    class P1,P2 q2;
+    class N1 q3;
+    class I1,I2,I3,I4 q4;
 
 
 
