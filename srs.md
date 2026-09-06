@@ -423,52 +423,8 @@ sequenceDiagram
         P-->>S: Phản hồi Webhook: Giao dịch thành công
     end
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor C as Khách hàng (Customer)
-    participant S as Hệ thống CAB (CAB System)
-    actor D as Tài xế (Driver)
-    participant P as Cổng Thanh toán (Payment Gateway)
-
-    %% Giai đoạn 1: Đặt xe & Tìm tài xế
-    Note over C, S: 1. Đặt xe & Điều phối
-    C->>S: Nhập điểm đón, điểm đến, chọn loại xe & gửi yêu cầu
-    S->>S: Kiểm tra tính hợp lệ & quét tài xế khả dụng gần nhất
-    S->>D: Phát tín hiệu mời nhận chuyến (kèm đếm ngược Timeout)
-    
-    alt Tài xế chấp nhận
-        D->>S: Bấm "Chấp nhận"
-        S->>C: Thông báo: Tài xế đã nhận chuyến (kèm ETA và vị trí)
-    else Tài xế từ chối hoặc hết giờ (Timeout)
-        D-->>S: Bấm "Từ chối" hoặc hết giờ
-        S->>S: Tự động chuyển tín hiệu sang tài xế khả dụng tiếp theo
-    end
-
-    %% Giai đoạn 2: Thực hiện hành trình
-    Note over C, D: 2. Vòng đời chuyến đi
-    D->>S: Cập nhật "Đã đến điểm đón"
-    S->>C: Gửi thông báo: Xe đã đến điểm đón
-    D->>S: Xác nhận "Đã đón khách" (Bắt đầu di chuyển)
-    D->>S: Gửi tọa độ GPS định kỳ (Cập nhật vị trí trên bản đồ)
-    D->>S: Bấm "Hoàn thành chuyến đi" (Đã đến điểm trả)
-
-    %% Giai đoạn 3: Tính cước & Thanh toán
-    Note over C, P: 3. Tính cước & Thanh toán
-    S->>S: Tự động tính cước phí thực tế dựa trên lộ trình
-    S->>C: Hiển thị hóa đơn thanh toán
-    S->>D: Hiển thị tổng tiền cần thu
-
-    alt Thanh toán Tiền mặt (Cash)
-        C->>D: Trả tiền mặt trực tiếp cho tài xế
-        D->>S: Bấm "Xác nhận đã nhận tiền"
-    else Thanh toán Điện tử (Digital Payment)
-        C->>P: Xác thực và thanh toán qua thẻ/ví điện tử
-        P-->>S: Phản hồi Webhook: Giao dịch thành công
-    end
-
     %% Giai đoạn 4: Đánh giá
-    Note over C, S: 4. Đánh giá chất lượng
+    Note over C, S: 4. Đánh giá chất lượng (BR-07)
     S->>C: Hiển thị màn hình chấm điểm dịch vụ
     C->>S: Gửi đánh giá (1 - 5 sao) và nhận xét
     S->>S: Cập nhật điểm xếp hạng trung bình của tài xế
