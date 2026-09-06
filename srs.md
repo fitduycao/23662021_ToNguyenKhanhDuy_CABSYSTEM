@@ -194,7 +194,78 @@ quadrantChart
 
 #### `BR-OPS-01`: Quyền hạn Can thiệp của Vận hành (Operation Staff)
 * **Mục tiêu:** Đảm bảo tính an toàn dữ liệu và quyền giải tỏa các điểm nghẽn của hệ thống.
-* **Quy tắc:** 
+* **Quy tắc:**
+
+
+
+
+# ĐẶC TẢ YÊU CẦU NGHIỆP VỤ & HỆ THỐNG (SRS - MVP SCOPE)
+## TẬP TRUNG 02 MODULE: QUẢN LÝ KHÁCH HÀNG & QUẢN LÝ TÀI XẾ
+
+**Dự án:** Nền tảng đặt xe CAB System  
+**Phiên bản:** MVP 1.0 (Giới hạn 2 phân hệ cốt lõi trong thời gian 7 tuần)  
+**Vai trò:** Senior Business Analyst  
+**Ngày cập nhật:** 06/09/2026  
+
+---
+
+## 1. MỤC TIÊU VÀ PHẠM VI GIỚI HẠN (SCOPE BOUNDARY)
+
+Để đảm bảo dự án nghiệm thu khả thi và bàn giao đúng hạn trong 7 tuần, hệ thống đóng băng phạm vi ở hai phân hệ tiền đề quyết định việc vận hành:
+1. **Module 1: Quản lý Khách hàng (Customer Management):** Quản lý định danh, trạng thái tài khoản, lịch sử đặt xe và tính hợp lệ khi gửi yêu cầu cuốc xe.
+2. **Module 2: Quản lý Tài xế (Driver Management):** Quản lý hồ sơ đối tác, phương tiện vận tải, trạng thái sẵn sàng (Online/Offline/Busy), tọa độ GPS và kiểm duyệt điều kiện nhận cuốc.
+
+---
+
+## 2. MA TRẬN ÁNH XẠ BUSINESS RULES VÀO 2 MODULE (BR TRACEABILITY MATRIX)
+
+| Mã BR | Tên quy tắc nghiệp vụ | Áp dụng vào Module | Trạng thái |
+| :--- | :--- | :---: | :---: |
+| **BR-AUTH-01** | Định danh duy nhất theo số điện thoại và phân quyền Role | Cả 2 Module | Confirmed |
+| **BR-AUTH-02** | Điều kiện xác thực và kích hoạt tài xế hành nghề | Quản lý Tài xế | Confirmed |
+| **BR-BOOKING-01** | Ràng buộc thông tin khởi tạo cuốc xe của khách hàng | Quản lý Khách hàng | Confirmed |
+| **BR-BOOKING-02** | Giới hạn 01 cuốc xe hoạt động đồng thời trên mỗi khách | Quản lý Khách hàng | Confirmed |
+| **BR-DRIVER-01** | 4 điều kiện cốt lõi để tài xế được nhận chuyến | Quản lý Tài xế | Confirmed |
+| **BR-DRIVER-02** | Cơ chế cập nhật tọa độ GPS và xử lý ngắt kết nối | Quản lý Tài xế | TBD |
+| **BR-RATE-01** | Tích lũy và cập nhật điểm đánh giá chất lượng phục vụ | Cả 2 Module | Confirmed |
+| **BR-OPS-01** | Quyền hạn tra cứu, kích hoạt/khóa tài khoản của Vận hành | Cả 2 Module | Confirmed |
+
+---
+
+## 3. ĐẶC TẢ CHI TIẾT MODULE 1: QUẢN LÝ KHÁCH HÀNG (CUSTOMER MANAGEMENT)
+
+### 3.1. Danh sách Chức năng (Functional Requirements)
+
+| FR ID | Tên chức năng | Actor | Mô tả tóm tắt | Quy tắc liên quan | Mức ưu tiên |
+| :--- | :--- | :--- | :--- | :---: | :---: |
+| **FR-CUS-01** | Đăng ký & Đăng nhập Khách hàng | Customer | Xác thực tài khoản qua SĐT và mật khẩu/mã OTP để cấp token truy cập. | `BR-AUTH-01` | **Must** |
+| **FR-CUS-02** | Quản lý Thông tin Hồ sơ | Customer | Xem và cập nhật họ tên, email liên hệ, ảnh đại diện cơ bản. | `BR-AUTH-01` | **Should** |
+| **FR-CUS-03** | Kiểm tra Tính hợp lệ khi Đặt xe | Customer, Hệ thống | Kiểm tra ràng buộc điều kiện không bị nợ cuốc hoặc đang kẹt cuốc xe khác. | `BR-BOOKING-01`<br>`BR-BOOKING-02` | **Must** |
+| **FR-CUS-04** | Tra cứu Lịch sử Chuyến xe | Customer | Hiển thị danh sách cuốc xe đã đi kèm trạng thái, số tiền và thông tin tài xế. | `BR-RATE-01` | **Must** |
+| **FR-CUS-05** | Quản trị Danh sách Khách hàng | Operation Staff | Tìm kiếm, xem chi tiết và khóa/mở khóa tài khoản khách hàng khi có gian lận. | `BR-OPS-01` | **Must** |
+
+---
+
+### 3.2. User Stories & Tiêu chí Nghiệm thu (Acceptance Criteria)
+
+#### US-CUS-01: Kiểm tra ràng buộc trước khi gửi cuốc xe
+* **User Story:** Là một **Hành khách (Customer)**, tôi muốn **hệ thống kiểm tra tính hợp lệ của tài khoản khi tôi bấm đặt xe**, để **tôi không bị xung đột cuốc xe hoặc tạo các yêu cầu ảo ngoài ý muốn.**
+* **Acceptance Criteria (AC):**
+  * `AC-01.1:` Nếu khách hàng đang có 01 cuốc xe ở các trạng thái `REQUESTED`, `MATCHED`, `PICKING_UP`, `IN_PROGRESS`, hệ thống chặn không cho tạo cuốc mới và hiển thị thông báo: *"Bạn đang có chuyến xe chưa hoàn thành. Vui lòng kiểm tra lại hành trình hiện tại."* (Theo `BR-BOOKING-02`).
+  * `AC-01.2:` Khách hàng bắt buộc phải nhập đủ tọa độ điểm đón và điểm trả với khoảng cách tối thiểu từ 100m trở lên trước khi gửi yêu cầu (Theo `BR-BOOKING-01`).
+* **Priority:** Must Have.
+
+#### US-CUS-02: Giám sát tài khoản khách hàng từ phía Vận hành
+* **User Story:** Là một **Nhân viên Vận hành (Operation Staff)**, tôi muốn **tra cứu hồ sơ khách hàng theo SĐT và có quyền tạm khóa tài khoản**, để **xử lý các trường hợp tài khoản spam hoặc vi phạm quy chế an toàn.**
+* **Acceptance Criteria (AC):**
+  * `AC-02.1:` Cho phép tìm kiếm chính xác khách hàng qua Số điện thoại hoặc Mã khách hàng (`Customer_ID`).
+  * `AC-02.2:` Hiển thị đầy đủ: Ngày tạo, Tổng số chuyến đã đặt, Tỷ lệ hủy chuyến, Trạng thái tài khoản (`ACTIVE`, `SUSPENDED`).
+  * `AC-02.3:` Nhân viên có quyền bấm "Khóa tài khoản" kèm ô nhập lý do bắt buộc (tối thiểu 10 ký tự). Tài khoản bị khóa sẽ bị đăng xuất ngay lập tức.
+* **Priority:** Must Have.
+
+---
+
+### 3.3. Cấu trúc Dữ liệu Khách hàng (Data Schema)
   - Operation Staff có quyền tra cứu thông tin chi tiết toàn bộ lịch sử các cuốc xe.
   - Operation Staff được quyền thực hiện lệnh **Hủy cuốc cưỡng bức (Force Cancel)** kèm nhập lý do nghiệp vụ bắt buộc đối với các chuyến xe đang treo (`REQUESTED`, `MATCHED`, `PICKING_UP`, `IN_PROGRESS`).
   - Operation Staff **không được phép** chỉnh sửa số tiền cước của những chuyến đi đã chuyển trạng thái `PAID`.
