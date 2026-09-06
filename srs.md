@@ -325,94 +325,37 @@ quadrantChart
   > *Trong bản MVP 7 tuần, có cần hiển thị cảnh báo này ngay trên màn hình chọn xe không, hay cứ cho phép khách bấm đặt xe rồi để thuật toán tự quét và trả về `NO_DRIVER_FOUND` nếu hết xe?*
   
 
+# Business Requirements – CAB System
 
+## 1. Mục tiêu nghiệp vụ
 
+Dựa trên yêu cầu của khách hàng, CAB System hướng đến việc xây dựng một nền tảng đặt xe trực tuyến có khả năng hỗ trợ đầy đủ quy trình từ khi khách hàng tạo yêu cầu đặt xe, hệ thống tìm tài xế, tài xế thực hiện chuyến đi, hệ thống tính cước, thanh toán cho đến khi khách hàng đánh giá tài xế.
 
+Các Business Requirement chính được xác định như sau:
 
+| Mã | Business Requirement |
+|---|---|
+| **BR-01** | Tự động hóa quy trình đặt xe và phân công tài xế nhằm giảm sự phụ thuộc vào việc điều phối thủ công. |
+| **BR-02** | Cho phép khách hàng tạo yêu cầu đặt xe và theo dõi trạng thái chuyến đi trong suốt quá trình sử dụng dịch vụ. |
+| **BR-03** | Tự động tìm và phân công tài xế phù hợp dựa trên vị trí, trạng thái sẵn sàng và các tiêu chí vận hành khác. |
+| **BR-04** | Quản lý toàn bộ vòng đời chuyến đi từ khi tạo yêu cầu, tìm tài xế, thực hiện chuyến đến khi hoàn thành. |
+| **BR-05** | Hỗ trợ tính cước và quản lý thanh toán tập trung, bao gồm thanh toán bằng tiền mặt và thanh toán điện tử. |
+| **BR-06** | Cung cấp thông báo kịp thời cho khách hàng và tài xế tại các sự kiện quan trọng của chuyến đi. |
+| **BR-07** | Hỗ trợ nhân viên vận hành theo dõi tài xế, chuyến đi, giao dịch và hỗ trợ xử lý các trường hợp phát sinh. |
+| **BR-08** | Đảm bảo xác thực người dùng, phân quyền truy cập, bảo vệ dữ liệu và lưu vết các thao tác quan trọng. |
+| **BR-09** | Đảm bảo hệ thống hoạt động ổn định khi nhu cầu tăng cao và hạn chế việc lỗi của một thành phần làm gián đoạn toàn bộ hệ thống. |
+| **BR-10** | Xây dựng nền tảng có kiến trúc linh hoạt, cho phép mở rộng thêm loại dịch vụ, phương thức thanh toán, nhà cung cấp thông báo và các chức năng mới trong tương lai. |
 
+## 2. Mối liên hệ với MVP
 
-  sequenceDiagram
-    autonumber
-    box rgb(235, 248, 255) Customer Lane
-    actor C as Khách hàng (Customer)
-    end
+Trong phạm vi MVP 7 tuần, các Business Requirement được ưu tiên theo hướng đảm bảo hệ thống có thể vận hành end-to-end:
 
-    box rgb(240, 244, 248) CAB System Engine Lane
-    participant S as CAB System Engine
-    end
+**Khách hàng tạo yêu cầu → Hệ thống tìm tài xế → Tài xế nhận chuyến → Thực hiện chuyến → Hoàn thành → Tính cước → Thanh toán → Đánh giá.**
 
-    box rgb(240, 253, 244) Driver Lane
-    actor D as Đối tác Tài xế (Driver)
-    end
+Các yêu cầu như báo cáo quản trị nâng cao, nhiều nhà cung cấp thanh toán, nhiều kênh thông báo hoặc phân tích hiệu suất tài xế chuyên sâu chưa phải trọng tâm của MVP và có thể được triển khai ở các phase sau.
 
-    box rgb(254, 243, 199) External Payment Lane
-    participant PG as Cổng Thanh toán (Payment GW)
-    end
+## 3. Lưu ý
 
-    %% BƯỚC 1: KHỞI TẠO VÀ CHỌN XE
-    rect rgb(245, 245, 245)
-    Note over C,S: GIAI ĐOẠN 1: KHỞI TẠO LỘ TRÌNH & CHỌN XE
-    C->>S: 1. Nhập điểm đón/trả hợp lệ (BR-BOOKING-01)
-    S->>S: 2. Kiểm tra điều kiện: Khách không có cuốc chạy dở (BR-BOOKING-02)
-    S->>C: 3. Trả về cước ước tính cho MOTORBIKE và CAR_4_SEATS (BR-VEHICLE-SEL-02)
-    C->>S: 4. Chọn 1 loại xe & bấm "Xác nhận đặt xe" (BR-VEHICLE-SEL-03)
-    S->>S: 5. Tạo cuốc xe trạng thái REQUESTED
-    end
-
-    %% BƯỚC 2: ĐIỀU PHỐI VÀ GHÉP CHUYẾN
-    rect rgb(238, 242, 255)
-    Note over S,D: GIAI ĐOẠN 2: ĐIỀU PHỐI VÀ PHẢN HỒI NHẬN CUỐC
-    loop Quét tài xế khả dụng (BR-DISPATCH-01)
-        S->>S: 6. Lọc tài xế: Online, rảnh việc, GPS < 60s
-        alt Không còn tài xế nào (Hết lượt quét)
-            S-->>C: 7a. Thông báo: "Không tìm thấy xe phù hợp" -> Kết thúc (BR-DISPATCH-04)
-        else Tìm thấy ứng viên gần nhất
-            S->>D: 7b. Bắn tín hiệu mời cuốc kèm đếm ngược 20s (BR-DISPATCH-03)
-            alt Driver Từ chối hoặc Hết 20s (Timeout)
-                D-->>S: 8a. Không nhận -> Loại trừ tài xế này, tiếp tục vòng lặp
-            else Driver bấm "Chấp nhận"
-                D->>S: 8b. Nhận cuốc -> Cập nhật trạng thái MATCHED
-            end
-        end
-    end
-    S-->>C: 9. Gửi thông tin tài xế, xe, biển số & vị trí di chuyển
-    end
-
-    %% BƯỚC 3: THỰC HIỆN HÀNH TRÌNH
-    rect rgb(240, 253, 244)
-    Note over C,D: GIAI ĐOẠN 3: THỰC HIỆN CHUYẾN ĐI (BR-STATE-01, 02)
-    D->>S: 10. Đến nơi đón -> Bấm "Đã đến" (Trạng thái: PICKING_UP)
-    S-->>C: 11. Báo chuông: "Tài xế đã đến điểm đón"
-    C->>D: 12. Khách lên xe
-    D->>S: 13. Bấm "Bắt đầu chuyến" (Trạng thái: IN_PROGRESS)
-    D->>S: 14. Đến nơi trả -> Bấm "Hoàn thành chuyến" (Trạng thái: COMPLETED)
-    end
-
-    %% BƯỚC 4: TÍNH CƯỚC VÀ THANH TOÁN
-    rect rgb(255, 251, 235)
-    Note over C,PG: GIAI ĐOẠN 4: TÍNH CƯỚC & THANH TOÁN
-    S->>S: 15. Tính cước thực tế theo km & loại xe (BR-PRICING-01)
-    S-->>D: 16. Hiển thị hóa đơn chốt cước
-    S-->>C: 17. Hiển thị hóa đơn thanh toán
-    
-    alt Phương thức Tiền mặt (Cash - BR-PAY-01)
-        C->>D: 18a. Đưa tiền mặt trực tiếp
-        D->>S: 19a. Bấm "Đã thu đủ tiền mặt" -> Ghi nhận PAID
-    else Phương thức Điện tử (E-Payment - BR-PAY-02)
-        S->>PG: 18b. Gửi lệnh trừ tiền
-        alt Cổng thanh toán thành công
-            PG-->>S: 19b. Webhook: Trừ tiền thành công -> Ghi nhận PAID
-        else Lỗi trừ tiền / Timeout (BR-PAY-03)
-            PG-->>S: 19c. Báo thất bại
-            S-->>C: 20c. Cảnh báo lỗi trừ thẻ -> Chuyển sang thu Tiền mặt
-            C->>D: 21c. Trả tiền mặt thay thế -> Driver xác nhận
-        end
-    end
-    end
-
-    %% BƯỚC 5: ĐÁNH GIÁ
-    rect rgb(245, 245, 245)
-    Note over C,S: GIAI ĐOẠN 5: ĐÁNH GIÁ CHẤT LƯỢNG (BR-RATE-01)
-    S-->>C: 22. Hiển thị biểu mẫu đánh giá 1-5 sao
-    C->>S: 23. Gửi đánh giá -> Hệ thống ghi nhận và đóng cuốc xe
-    end
+- **BR** trong tài liệu này được dùng để chỉ **Business Requirement**.
+- Các quy tắc nghiệp vụ chi tiết nên sử dụng mã riêng, ví dụ **BRU-01, BRU-02...**, để tránh nhầm với Business Requirement.
+- Các nội dung khách hàng chưa xác định rõ như cách tính cước, tiêu chí ưu tiên tài xế, thời gian phản hồi, chính sách hủy chuyến, xử lý mất kết nối và thời gian lưu trữ dữ liệu cần được đánh dấu **TBD** và xác nhận lại với khách hàng.
