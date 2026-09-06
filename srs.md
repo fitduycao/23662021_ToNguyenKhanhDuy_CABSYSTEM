@@ -270,3 +270,56 @@ quadrantChart
   - Operation Staff được quyền thực hiện lệnh **Hủy cuốc cưỡng bức (Force Cancel)** kèm nhập lý do nghiệp vụ bắt buộc đối với các chuyến xe đang treo (`REQUESTED`, `MATCHED`, `PICKING_UP`, `IN_PROGRESS`).
   - Operation Staff **không được phép** chỉnh sửa số tiền cước của những chuyến đi đã chuyển trạng thái `PAID`.
 * **Trạng thái:** `Confirmed`.
+
+
+### BR-VEHICLE-SEL-01: Danh mục loại xe hỗ trợ trong MVP
+* **Mã quy tắc:** `BR-VEHICLE-SEL-01`
+* **Tên quy tắc:** Giới hạn phân loại phương tiện trong giai đoạn MVP.
+* **Mục tiêu doanh nghiệp:** Giảm tải độ phức tạp vận hành và tập trung vào phân khúc phương tiện phổ biến nhất để kiểm chứng thị trường.
+* **Nội dung quy tắc:**
+  - Hệ thống chỉ cung cấp hiển thị và hỗ trợ đặt đúng **02 phân loại phương tiện**:
+    1. `MOTORBIKE` (Xe máy 2 bánh - chở tối đa 01 khách).
+    2. `CAR_4_SEATS` (Ô tô 4 chỗ tiêu chuẩn - chở tối đa 04 khách).
+  - Các dòng xe khác (`CAR_7_SEATS`, xe cao cấp `PREMIUM`, xe giao hàng `DELIVERY`) hoàn toàn **Out-of-Scope** ở bản MVP 1.0.
+* **Trạng thái:** `Confirmed`.
+
+---
+
+### BR-VEHICLE-SEL-02: Ràng buộc tính cước và hiển thị theo loại xe
+* **Mã quy tắc:** `BR-VEHICLE-SEL-02`
+* **Tên quy tắc:** Hiển thị giá cước ước tính theo từng loại xe.
+* **Mục tiêu doanh nghiệp:** Minh bạch chi phí, giúp khách hàng tự cân đối nhu cầu và khả năng chi trả, hạn chế hủy chuyến do hiểu nhầm giá.
+* **Nội dung quy tắc:**
+  - Khi khách hàng đã nhập đủ điểm đón và điểm trả hợp lệ:
+    - Hệ thống bắt buộc tính toán đồng thời và hiển thị giá ước tính (`Estimated_Fare`) cho cả 2 loại xe (`MOTORBIKE` và `CAR_4_SEATS`) trên cùng một màn hình lựa chọn.
+    - Công thức ước tính áp dụng đơn giá riêng biệt theo cấu hình của từng loại xe:
+      $$\text{Estimated\_Fare}_{\text{type}} = \text{Base\_Fare}_{\text{type}} + (\text{Estimated\_Distance} \times \text{Rate\_Per\_Km}_{\text{type}})$$
+  - Giá hiển thị phải được làm tròn đến hàng nghìn đồng (VND).
+* **Trạng thái:** `Confirmed`.
+
+---
+
+### BR-VEHICLE-SEL-03: Ràng buộc loại xe khi khởi tạo yêu cầu đặt xe
+* **Mã quy tắc:** `BR-VEHICLE-SEL-03`
+* **Tên quy tắc:** Chọn loại xe bắt buộc khi gửi Booking.
+* **Mục tiêu doanh nghiệp:** Tránh tạo các cuốc xe không xác định phương tiện, đảm bảo thuật toán điều phối gán đúng tài xế sở hữu loại xe phù hợp.
+* **Nội dung quy tắc:**
+  - Khách hàng bắt buộc phải chọn duy nhất **01 loại xe** tại một thời điểm đặt chuyến.
+  - Loại xe được chọn mặc định ban đầu (`Default Selection`) là loại xe mà khách hàng đã đặt ở chuyến đi thành công gần nhất (nếu là khách mới: mặc định chọn `MOTORBIKE`).
+  - Nút "Xác nhận đặt xe" chỉ kích hoạt (enable) khi đã có 01 loại xe được chọn.
+  - Khi yêu cầu được gửi đi, mã loại xe đã chọn (`Vehicle_Type`) sẽ được gắn cố định vào bản ghi `Booking` và **không được phép thay đổi** trong suốt vòng đời cuốc xe.
+* **Trạng thái:** `Confirmed`.
+
+---
+
+### BR-VEHICLE-SEL-04: Cảnh báo nguồn cung phương tiện khả dụng (Availability Check)
+* **Mã quy tắc:** `BR-VEHICLE-SEL-04`
+* **Tên quy tắc:** Kiểm tra sơ bộ số lượng tài xế theo loại xe tại khu vực đón.
+* **Mục tiêu doanh nghiệp:** Quản trị kỳ vọng của khách hàng, tránh để khách đặt cuốc ở những vùng không có sẵn xe loại đó.
+* **Nội dung quy tắc:**
+  - Khi khách hàng chọn một loại xe, hệ thống đếm nhanh số lượng tài xế thỏa mãn điều kiện `BR-DRIVER-01` sở hữu đúng loại xe đó trong bán kính quy định (ví dụ: 3km).
+  - Nếu số tài xế khả dụng = 0: 
+    - Cho phép khách đặt tiếp nhưng hiển thị nhãn cảnh báo: *"Khu vực này hiện đang có ít tài xế [Loại xe], thời gian tìm xe có thể lâu hơn dự kiến."*
+* **Trạng thái:** `TBD`.
+* **Câu hỏi BA cần làm rõ:** 
+  > *Trong bản MVP 7 tuần, có cần hiển thị cảnh báo này ngay trên màn hình chọn xe không, hay cứ cho phép khách bấm đặt xe rồi để thuật toán tự quét và trả về `NO_DRIVER_FOUND` nếu hết xe?*
