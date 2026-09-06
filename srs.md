@@ -423,15 +423,6 @@ sequenceDiagram
         P-->>S: Phản hồi Webhook: Giao dịch thành công
     end
 
-    %% Giai đoạn 4: Đánh giá
-    Note over C, S: 4. Đánh giá chất lượng (BR-07)
-    S->>C: Hiển thị màn hình chấm điểm dịch vụ
-    C->>S: Gửi đánh giá (1 - 5 sao) và nhận xét
-    S->>S: Cập nhật điểm xếp hạng trung bình của tài xế
-
-
-
-
 ```mermaid
 sequenceDiagram
     autonumber
