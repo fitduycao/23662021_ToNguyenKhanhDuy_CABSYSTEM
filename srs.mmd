@@ -1,44 +1,17 @@
-graph LR
-    %% Actors
-    Customer(["fa:fa-user Customer"])
-    Driver(["fa:fa-id-card Driver"])
-    Ops(["fa:fa-headset Operation Staff"])
-    PaymentGW[["fa:fa-credit-card Payment Gateway"]]
-    NotiService[["fa:fa-bell Notification Provider"]]
+quadrantChart
+    title CAB System - Stakeholder Matrix (Power vs. Interest)
+    x-axis "Mức độ quan tâm thấp (Low Interest)" --> "Mức độ quan tâm cao (High Interest)"
+    y-axis "Quyền lực / Ảnh hưởng thấp (Low Power)" --> "Quyền lực / Ảnh hưởng cao (High Power)"
+    
+    quadrant-1 "QUẢN LÝ CHẶT CHẼ (Manage Closely)"
+    quadrant-2 "LÀM HÀI LÒNG (Keep Satisfied)"
+    quadrant-3 "THEO DÕI TỐI THIỂU (Monitor)"
+    quadrant-4 "CẬP NHẬT THƯỜNG XUYÊN (Keep Informed)"
 
-    %% CAB System Boundary
-    subgraph CAB_System ["CAB System (MVP Scope)"]
-        UC01((UC-01: Đăng nhập / Định danh))
-        UC02((UC-02: Ước tính cước & Đặt xe))
-        UC03((UC-03: Bật/Tắt trạng thái Online))
-        UC04((UC-04: Điều phối & Nhận cuốc))
-        UC05((UC-05: Cập nhật tiến độ chuyến đi))
-        UC06((UC-06: Hoàn thành & Chốt cước))
-        UC07((UC-07: Xử lý thanh toán Tiền mặt/Online))
-        UC08((UC-08: Đánh giá & Phản hồi))
-        UC09((UC-09: Giám sát & Hủy chuyến khẩn cấp))
-    end
-
-    %% Customer Connections
-    Customer --> UC01
-    Customer --> UC02
-    Customer --> UC07
-    Customer --> UC08
-    Customer -.->|Hủy khi chưa đón| UC09
-
-    %% Driver Connections
-    Driver --> UC01
-    Driver --> UC03
-    Driver --> UC04
-    Driver --> UC05
-    Driver --> UC06
-    Driver --> UC07
-
-    %% Operations Connections
-    Ops --> UC01
-    Ops --> UC09
-
-    %% External Systems Interactions
-    UC04 -.->|Push notification| NotiService
-    UC05 -.->|Thông báo vị trí| NotiService
-    UC07 <-->|Giao dịch thanh toán số| PaymentGW
+    "Product Owner / Sponsor / C-Level": [0.85, 0.90]
+    "Cơ quan Quản lý / Pháp lý & Thuế": [0.25, 0.85]
+    "Khách hàng (Customer)": [0.88, 0.35]
+    "Tài xế (Driver)": [0.90, 0.40]
+    "Nhân viên Vận hành (Operation Staff)": [0.75, 0.30]
+    "Đối tác thứ 3 (Payment / Map / SMS)": [0.35, 0.45]
+    "System Admin": [0.65, 0.30]
