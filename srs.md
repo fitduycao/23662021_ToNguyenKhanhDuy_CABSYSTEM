@@ -430,6 +430,3 @@ sequenceDiagram
 
 
 
-
-
- hãy sửa lại và viết lại toàn bộ theo yêu cầu của bài và sửa code lại cho toi 
