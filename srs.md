@@ -11,9 +11,6 @@
 | **Chuyên viên Phân tích Nghiệp vụ (Business Analyst)** | Khảo sát, làm rõ các quy tắc còn thiếu (tính cước, tiêu chí tìm tài xế, hủy chuyến, timeout) và đặc tả yêu cầu cho đội kỹ thuật.[cite: 1] |
 
 
-
-## Stakeholder Matrix - CAB System
-
 quadrantChart
     title STAKEHOLDER MATRIX - CAB SYSTEM (Power vs Interest)
     x-axis "Mức độ Quan tâm Thấp (Low Interest)" --> "Mức độ Quan tâm Cao (High Interest)"
@@ -31,7 +28,6 @@ quadrantChart
     "Tài xế (Driver)": [0.90, 0.38]
     "Nhân viên Vận hành (Operations)": [0.82, 0.42]
     "Nhân viên Quản trị Hệ thống": [0.70, 0.48]
-
 
 
 
