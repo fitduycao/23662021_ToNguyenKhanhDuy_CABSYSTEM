@@ -500,3 +500,180 @@ sequenceDiagram
 | **FR-ADM-03** | Hỗ trợ xử lý cuốc lỗi | Nhân viên vận hành | Can thiệp giải quyết các trường hợp chuyến xe bị treo lỗi, hỗ trợ hủy cuốc sự cố và tra cứu lịch sử giao dịch[cite: 1]. | **Must** |
 | **FR-ADM-04** | Báo cáo doanh thu & Vận hành | Ban giám đốc, Admin | Cung cấp báo cáo thống kê: Tổng số lượng chuyến, doanh thu, tỷ lệ hoàn thành cuốc, tỷ lệ hủy và hiệu suất tài xế[cite: 1]. | **Should** |
 | **FR-ADM-05** | Ghi nhận nhật ký kiểm toán | Hệ thống | Tự động ghi lại nhật ký (Audit Log) các thao tác quản trị quan trọng để phục vụ tra soát sự cố[cite: 1]. | **Must** |
+
+
+
+# DANH MỤC QUY TẮC NGHIỆP VỤ (BUSINESS RULES SPECIFICATION - CAB SYSTEM)
+
+**Dự án:** Nền tảng đặt xe CAB System[cite: 1]  
+**Phiên bản:** MVP 1.0 (7 tuần)[cite: 1]  
+**Vai trò:** Business Analyst[cite: 1]  
+**Quy ước trạng thái:**
+* `Confirmed`: Quy tắc đã được xác định rõ ràng theo yêu cầu bài toán[cite: 1].
+* `TBD`: Quy tắc cần thảo luận và xác nhận lại với khách hàng[cite: 1].
+
+---
+
+## 1. NHÓM ĐỊNH DANH, TÀI KHOẢN & PHÂN QUYỀN (BRU-AUTH)
+
+### `BRU-AUTH-01`: Định danh duy nhất và vai trò truy cập
+* **Mô tả:** Mỗi tài khoản trong hệ thống được gắn liền với duy nhất một số điện thoại định danh[cite: 1].
+* **Điều kiện áp dụng:** Khi đăng ký hoặc đăng nhập[cite: 1].
+* **Nội dung quy tắc:** Tại một phiên làm việc, một người dùng chỉ được hoạt động dưới đúng 01 vai trò cụ thể: `Customer`, `Driver` hoặc `Operator`[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-AUTH-02`: Điều kiện kích hoạt tài xế hành nghề
+* **Mô tả:** Đảm bảo tính hợp pháp của tài xế và an toàn cho khách hàng[cite: 1].
+* **Điều kiện áp dụng:** Trước khi tài xế được phép nhận chuyến trên hệ thống[cite: 1].
+* **Nội dung quy tắc:** Tài khoản tài xế chỉ được chuyển sang trạng thái `ACTIVE` khi nhân viên vận hành đã xác thực thông tin cá nhân và giấy tờ phương tiện trên cổng Admin[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-AUTH-03`: Phân quyền chức năng quản trị
+* **Mô tả:** Kiểm soát dữ liệu và hành động nhạy cảm của nhân viên nội bộ[cite: 1].
+* **Điều kiện áp dụng:** Thao tác trên cổng quản trị (Back-office Portal)[cite: 1].
+* **Nội dung quy tắc:** Áp dụng mô hình RBAC (Role-Based Access Control)[cite: 1]. Nhân viên vận hành thông thường chỉ được xem và hỗ trợ chuyến đi lỗi; không được phép truy cập cấu hình hệ thống hoặc can thiệp số liệu tài chính đã chốt[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+---
+
+## 2. NHÓM ĐẶT XE & CHỌN PHƯƠNG TIỆN (BRU-BOOKING)
+
+### `BRU-BOOKING-01`: Ràng buộc dữ liệu khởi tạo cuốc xe
+* **Mô tả:** Ngăn chặn các yêu cầu không hợp lệ hoặc dữ liệu ảo[cite: 1].
+* **Điều kiện áp dụng:** Khi khách hàng bấm nút gửi yêu cầu đặt xe[cite: 1].
+* **Nội dung quy tắc:** Khách hàng bắt buộc phải nhập đủ: Tọa độ điểm đón, tọa độ điểm đến, loại phương tiện và phương thức thanh toán[cite: 1]. Khoảng cách thực tế giữa điểm đón và điểm đến phải lớn hơn 0 mét.
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-BOOKING-02`: Giới hạn chuyến xe đang hoạt động
+* **Mô tả:** Ngăn ngừa việc đặt xe trùng lặp gây xung đột hệ thống[cite: 1].
+* **Điều kiện áp dụng:** Khi khách hàng thao tác gọi xe mới[cite: 1].
+* **Nội dung quy tắc:** Một tài khoản khách hàng chỉ được phép có tối đa **01 chuyến xe đang xử lý** (từ lúc tạo yêu cầu đến trước khi hoàn tất hoặc hủy)[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-BOOKING-03`: Ràng buộc loại xe trong giai đoạn MVP
+* **Mô tả:** Đơn giản hóa danh mục xe để đảm bảo tiến độ triển khai trong 7 tuần[cite: 1].
+* **Điều kiện áp dụng:** Màn hình lựa chọn loại dịch vụ của khách hàng[cite: 1].
+* **Nội dung quy tắc:** Hệ thống hỗ trợ 2 loại xe tiêu chuẩn: Xe máy (`MOTORBIKE`) và Ô tô 4 chỗ (`CAR_4_SEATS`)[cite: 1]. Khách hàng chỉ được chọn duy nhất 01 loại xe cho mỗi cuốc[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+---
+
+## 3. NHÓM ĐIỀU PHỐI & PHÂN BỔ TÀI XẾ (BRU-DISPATCH)
+
+### `BRU-DISPATCH-01`: Tiêu chuẩn lọc tài xế khả dụng
+* **Mô tả:** Lọc nguồn cung thực tế để gửi yêu cầu cuốc xe[cite: 1].
+* **Điều kiện áp dụng:** Khi hệ thống quét tìm xe phù hợp cho hành khách[cite: 1].
+* **Nội dung quy tắc:** Tài xế chỉ được đưa vào danh sách đề xuất nhận chuyến khi thỏa mãn đồng thời:
+  1. Trạng thái tài khoản là `ACTIVE`[cite: 1].
+  2. Đang bật chế độ sẵn sàng làm việc (`ONLINE`)[cite: 1].
+  3. Đang không thực hiện chuyến xe nào khác (`is_busy = false`)[cite: 1].
+  4. Có tín hiệu định vị GPS được gửi về hệ thống trong khoảng thời gian hợp lệ[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-DISPATCH-02`: Tiêu chí ưu tiên phân bổ chuyến đi
+* **Mô tả:** Tối ưu hóa thời gian đón khách (ETA)[cite: 1].
+* **Điều kiện áp dụng:** Sắp xếp danh sách tài xế nhận lời mời[cite: 1].
+* **Nội dung quy tắc:** Hệ thống ưu tiên mời tài xế phù hợp và có vị trí gần điểm đón nhất theo bán kính quét[cite: 1].
+* **Trạng thái:** `TBD`.
+* **BA Clarification:** Cần xác nhận bán kính quét ban đầu (ví dụ: 3 km) và mức độ mở rộng bán kính khi không tìm thấy xe[cite: 1].
+
+### `BRU-DISPATCH-03`: Thời hạn tài xế phản hồi (Timeout)
+* **Mô tả:** Đảm bảo luồng xử lý không bị treo khi tài xế không tương tác[cite: 1].
+* **Điều kiện áp dụng:** Khi tín hiệu mời chuyến được gửi tới màn hình tài xế[cite: 1].
+* **Nội dung quy tắc:** Tài xế có N giây đếm ngược để bấm "Chấp nhận" hoặc "Từ chối"[cite: 1]. Nếu từ chối hoặc hết giờ mà không phản hồi, hệ thống tự động chuyển tiếp cuốc xe đến tài xế phù hợp tiếp theo mà không yêu cầu khách tạo lại cuốc[cite: 1].
+* **Trạng thái:** `TBD`.
+* **BA Clarification:** Cần chốt thời gian đếm ngược chính xác (đề xuất: 15s - 30s)[cite: 1].
+
+### `BRU-DISPATCH-04`: Giới hạn tìm kiếm và kết thúc điều phối
+* **Mô tả:** Đóng luồng xử lý khi không tìm được nguồn cung trên thị trường[cite: 1].
+* **Điều kiện áp dụng:** Khi đã quét hết danh sách tài xế khả dụng[cite: 1].
+* **Nội dung quy tắc:** Sau khi gửi lời mời qua tối đa M tài xế hoặc sau T phút tìm kiếm không thành công, hệ thống dừng tìm kiếm, chuyển trạng thái cuốc sang `NO_DRIVER_FOUND` và thông báo rõ ràng cho khách hàng[cite: 1].
+* **Trạng thái:** `TBD`.
+* **BA Clarification:** Cần chốt số lần gán tối đa M (ví dụ: 3 lần) và tổng thời gian chờ T (ví dụ: 2 phút)[cite: 1].
+
+---
+
+## 4. NHÓM TRẠNG THÁI & VÒNG ĐỜI CHUYẾN ĐI (BRU-STATE)
+
+### `BRU-STATE-01`: Tính tuần tự một chiều của trạng thái cuốc xe
+* **Mô tả:** Bảo toàn tính toàn vẹn dữ liệu hành trình[cite: 1].
+* **Điều kiện áp dụng:** Trong suốt quá trình thực thi chuyến đi[cite: 1].
+* **Nội dung quy tắc:** Trạng thái chuyến đi phải tuân thủ nghiêm ngặt chuỗi một chiều:  
+  `REQUESTED` $\rightarrow$ `MATCHED` $\rightarrow$ `PICKING_UP` $\rightarrow$ `IN_PROGRESS` $\rightarrow$ `COMPLETED`[cite: 1].  
+  Không được phép nhảy cóc hoặc đảo ngược trạng thái[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-STATE-02`: Trách nhiệm cập nhật tiến trình di chuyển
+* **Mô tả:** Minh bạch hóa thông tin lộ trình theo thời gian thực[cite: 1].
+* **Điều kiện áp dụng:** Thao tác của tài xế trên ứng dụng di động[cite: 1].
+* **Nội dung quy tắc:** Tài xế có nghĩa vụ bấm cập nhật theo đúng thực tế:
+  * Bấm `PICKING_UP` khi đã đến điểm đón khách[cite: 1].
+  * Bấm `IN_PROGRESS` khi khách đã lên xe an toàn[cite: 1].
+  * Bấm `COMPLETED` khi đã trả khách tại điểm đến[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-STATE-03`: Chính sách hủy chuyến và lý do hủy
+* **Mô tả:** Giảm thiểu tỷ lệ hủy chuyến và thiệt hại thời gian của các bên[cite: 1].
+* **Điều kiện áp dụng:** Khi khách hàng hoặc tài xế bấm hủy cuốc[cite: 1].
+* **Nội dung quy tắc:** Khách hàng được hủy miễn phí khi đang ở trạng thái tìm xe (`REQUESTED`)[cite: 1]. Sau khi đã ghép nối tài xế thành công, bên thao tác hủy bắt buộc phải chọn lý do hủy trên hệ thống[cite: 1].
+* **Trạng thái:** `TBD`.
+* **BA Clarification:** Cần xác nhận khung thời gian cho phép hủy miễn phí và mức phí phạt hủy cuốc sau khi tài xế đã di chuyển[cite: 1].
+
+---
+
+## 5. NHÓM TÍNH CƯỚC & THANH TOÁN (BRU-PAY)
+
+### `BRU-PAY-01`: Công thức cấu thành cước phí chuyến đi
+* **Mô tả:** Tự động hóa tính toán doanh thu và chi phí minh bạch[cite: 1].
+* **Điều kiện áp dụng:** Ngay sau khi cuốc xe chuyển sang trạng thái `COMPLETED`[cite: 1].
+* **Nội dung quy tắc:** Số tiền cước phải trả được hệ thống tính toán dựa trên loại dịch vụ xe và lộ trình thực tế của chuyến đi[cite: 1].
+* **Trạng thái:** `TBD`.
+* **BA Clarification:** Cần chốt biểu giá: Tính thuần theo khoảng cách (km) hay có cộng dồn thời gian di chuyển (phút)? Có áp dụng hệ số giờ cao điểm trong bản MVP hay không[cite: 1]?
+
+### `BRU-PAY-02`: Xác nhận thanh toán Tiền mặt (Cash)
+* **Mô tả:** Thu hồi trực tiếp cước phí dịch vụ tại điểm trả[cite: 1].
+* **Điều kiện áp dụng:** Khách hàng chọn phương thức trả bằng tiền mặt[cite: 1].
+* **Nội dung quy tắc:** Tài xế thu đúng số tiền hiển thị trên ứng dụng và bấm "Xác nhận đã nhận tiền" để hoàn tất cuốc xe[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-PAY-03`: Bảo mật dữ liệu thanh toán điện tử
+* **Mô tả:** Tuân thủ tiêu chuẩn an toàn thông tin tài chính[cite: 1].
+* **Điều kiện áp dụng:** Giao dịch qua thẻ ngân hàng hoặc ví điện tử[cite: 1].
+* **Nội dung quy tắc:** Hệ thống CAB tuyệt đối không lưu trữ thông tin thẻ (số thẻ, ngày hết hạn, CVV) trên máy chủ nội bộ; toàn bộ giao dịch được chuyển giao trực tiếp cho Cổng thanh toán bên thứ ba xử lý[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-PAY-04`: Cơ chế xử lý thanh toán điện tử thất bại
+* **Mô tả:** Đảm bảo luồng vận hành không bị bế tắc khi phát sinh lỗi kỹ thuật thanh toán[cite: 1].
+* **Điều kiện áp dụng:** Cổng thanh toán phản hồi giao dịch thất bại hoặc timeout[cite: 1].
+* **Nội dung quy tắc:** Hệ thống gửi thông báo lỗi cho khách hàng và cho phép khách hàng thanh toán lại hoặc chuyển đổi sang phương thức Tiền mặt để tài xế thu trực tiếp[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+---
+
+## 6. NHÓM THÔNG BÁO, ĐÁNH GIÁ & GIÁM SÁT VẬN HÀNH (BRU-OPS)
+
+### `BRU-OPS-01`: Cơ chế kích hoạt thông báo tự động
+* **Mô tả:** Giữ cho khách hàng và tài xế luôn nắm bắt được trạng thái chuyến đi[cite: 1].
+* **Điều kiện áp dụng:** Khi có sự thay đổi trạng thái cuốc xe[cite: 1].
+* **Nội dung quy tắc:** Hệ thống tự động phát thông báo tới:
+  * **Khách hàng:** Khi yêu cầu được tiếp nhận, khi có tài xế nhận cuốc, khi xe đến nơi, khi chuyến hoàn thành và khi thanh toán xong[cite: 1].
+  * **Tài xế:** Khi có cuốc xe mới mời nhận hoặc khi khách hàng thao tác hủy chuyến[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-OPS-02`: Đánh giá chất lượng sau chuyến đi
+* **Mô tả:** Kiểm soát chất lượng phục vụ của đội ngũ tài xế[cite: 1].
+* **Điều kiện áp dụng:** Sau khi chuyến đi hoàn thành và thanh toán thành công[cite: 1].
+* **Nội dung quy tắc:** Mỗi chuyến xe chỉ được khách hàng đánh giá duy nhất **01 lần** (thang điểm 1 đến 5 sao kèm nhận xét)[cite: 1]. Đánh giá sau khi gửi sẽ không thể chỉnh sửa[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-OPS-03`: Quyền can thiệp sự cố của Nhân viên Vận hành
+* **Mô tả:** Xử lý các trường hợp phát sinh lỗi kỹ thuật hoặc tranh chấp vận hành[cite: 1].
+* **Điều kiện áp dụng:** Trên giao diện quản trị (Admin Portal)[cite: 1].
+* **Nội dung quy tắc:** Nhân viên vận hành có quyền hủy cuốc cưỡng bức (`Force Cancel`) kèm lý do đối với các chuyến xe bị treo lỗi[cite: 1]. Nhân viên vận hành không có thẩm quyền sửa đổi giá trị tiền cước của những chuyến xe đã chuyển trạng thái thanh toán thành công[cite: 1].
+* **Trạng thái:** `Confirmed`.
+
+### `BRU-OPS-04`: Ghi nhận nhật ký kiểm toán (Audit Trail)
+* **Mô tả:** Phục vụ công tác tra soát và an toàn hệ thống[cite: 1].
+* **Điều kiện áp dụng:** Mọi thao tác quản trị nhạy cảm[cite: 1].
+* **Nội dung quy tắc:** Hệ thống tự động ghi nhận nhật ký (thời gian, người thực hiện, hành động, dữ liệu trước và sau thay đổi) đối với các thao tác: duyệt/khóa tài khoản, hủy chuyến cưỡng bức và xử lý sự cố[cite: 1].
+* **Trạng thái:** `Confirmed`.
