@@ -1,0 +1,1561 @@
+openapi: 3.0.3
+info:
+  title: MVP-01 — Tài khoản và phân quyền
+  version: 0.2.0
+  description: Đặc tả API đề xuất cho CAB theo module MVP của SRS. File độc lập để nhập Swagger Editor. Các chính
+    sách TBD chưa phải yêu cầu đã phê duyệt; URL chỉ minh họa, chưa có backend.
+servers:
+- url: https://api.cab.example.com/api/v1
+  description: Máy chủ minh họa
+security:
+- BearerAuth: []
+paths:
+  /roles:
+    get:
+      tags:
+      - MVP-01
+      summary: Lấy danh sách vai trò
+      operationId: listRoles
+      description: 'Tra cứu vai trò đã cấu hình và quyền tương ứng; không cho người thường tự cấp quyền.
+
+
+        Quyền: admin có roles:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.'
+      x-function: listRoles
+      x-functional-requirements:
+      - FR-24
+      x-authorization: admin có roles:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy danh sách vai trò thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RolePage'
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  name: operator
+                  permissions:
+                  - users:read
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-11
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy danh sách vai trò
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/roles' \\\n  -H 'Accept: application/json' \\\n\
+          \  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /permissions:
+    get:
+      tags:
+      - MVP-01
+      summary: Lấy danh mục quyền
+      operationId: listPermissions
+      description: 'Danh mục quyền do hệ thống định nghĩa. Mỗi endpoint kiểm tra quyền và sở hữu tài nguyên tại
+        máy chủ.
+
+
+        Quyền: admin có roles:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.'
+      x-function: listPermissions
+      x-functional-requirements:
+      - FR-24
+      x-authorization: admin có roles:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy danh mục quyền thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionPage'
+              example:
+                items:
+                - code: users:read
+                  description: Tra cứu khách hàng
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-11
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy danh mục quyền
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/permissions' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /users/{userId}/roles:
+    get:
+      tags:
+      - MVP-01
+      summary: Lấy các vai trò của tài khoản
+      operationId: getUserRoles
+      description: 'Tra cứu các vai trò được gán cho tài khoản.
+
+
+        Quyền: admin có roles:read. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: getUserRoles
+      x-functional-requirements:
+      - FR-24
+      x-authorization: admin có roles:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy các vai trò của tài khoản thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleAssignments'
+              example:
+                userId: 11111111-1111-4111-8111-111111111111
+                roleIds:
+                - 11111111-1111-4111-8111-111111111111
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy các vai trò của tài khoản
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111/roles'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+    put:
+      tags:
+      - MVP-01
+      summary: Gán hoặc thay thế vai trò tài khoản
+      operationId: assignUserRoles
+      description: 'Đề xuất thao tác nhạy cảm: chỉ gán vai trò được phép; không tự nâng quyền hoặc xóa quản trị
+        cuối cùng. Tài khoản nhận vai trò driver/customer phải có hồ sơ tương ứng trước khi gán, nếu thiếu trả 409
+        PROFILE_REQUIRED. Cập nhật có hiệu lực với mọi yêu cầu sau đó và ghi audit.
+
+
+        Quyền: admin có roles:assign. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.'
+      x-function: assignUserRoles
+      x-functional-requirements:
+      - FR-24
+      - FR-26
+      x-authorization: admin có roles:assign
+      x-status: proposed-extension
+      responses:
+        '200':
+          description: Gán hoặc thay thế vai trò tài khoản thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleAssignments'
+              example:
+                userId: 11111111-1111-4111-8111-111111111111
+                roleIds:
+                - 11111111-1111-4111-8111-111111111111
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-11
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleAssignmentRequest'
+            example:
+              roleIds:
+              - 11111111-1111-4111-8111-111111111111
+      x-codeSamples:
+      - lang: cURL
+        label: Gán hoặc thay thế vai trò tài khoản
+        source: "curl -X PUT 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111/roles'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Content-Type:\
+          \ application/json' \\\n  --data '{\"roleIds\": [\"11111111-1111-4111-8111-111111111111\"]}'"
+      security:
+      - BearerAuth: []
+  /auth/register:
+    post:
+      tags:
+      - MVP-01
+      summary: Đăng ký tài khoản khách hàng
+      operationId: registerCustomer
+      description: 'Tạo mới tài khoản khách hàng. Số điện thoại trùng trả 409 ACCOUNT_EXISTS. Không được truyền
+        vai trò quản trị.
+
+
+        Quyền: Công khai; luôn tạo vai trò customer. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-08.'
+      x-function: registerCustomer
+      x-functional-requirements:
+      - FR-01
+      x-authorization: Công khai; luôn tạo vai trò customer
+      x-status: proposed-contract
+      responses:
+        '201':
+          description: Đăng ký tài khoản khách hàng thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                role: customer
+                status: active
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-08
+      security: []
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+            example:
+              fullName: Nguyễn Văn An
+              phone: '+84901234567'
+              password: ExampleOnly_ChangeMe_123!
+      x-codeSamples:
+      - lang: cURL
+        label: Đăng ký tài khoản khách hàng
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/auth/register' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"fullName\": \"Nguyễn Văn An\", \"phone\"\
+          : \"+84901234567\", \"password\": \"ExampleOnly_ChangeMe_123!\"}'"
+  /auth/drivers/register:
+    post:
+      tags:
+      - MVP-01
+      summary: Tài xế tự đăng ký
+      operationId: registerDriver
+      description: 'Tạo tài khoản và hồ sơ tài xế trong cùng giao dịch. Trạng thái đủ điều kiện nhận xe phải theo
+        chính sách duyệt, không tự bật available.
+
+
+        Quyền: Công khai; luôn tạo vai trò driver. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-08.'
+      x-function: registerDriver
+      x-functional-requirements:
+      - FR-02
+      x-authorization: Công khai; luôn tạo vai trò driver
+      x-status: proposed-contract
+      responses:
+        '201':
+          description: Tài xế tự đăng ký thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                accountId: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                status: active
+                availability: offline
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-08
+      security: []
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+            example:
+              fullName: Nguyễn Văn An
+              phone: '+84901234567'
+              password: ExampleOnly_ChangeMe_123!
+      x-codeSamples:
+      - lang: cURL
+        label: Tài xế tự đăng ký
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/auth/drivers/register' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"fullName\": \"Nguyễn Văn An\", \"phone\"\
+          : \"+84901234567\", \"password\": \"ExampleOnly_ChangeMe_123!\"}'"
+  /auth/login:
+    post:
+      tags:
+      - MVP-01
+      summary: Đăng nhập
+      operationId: login
+      description: 'Xác thực số điện thoại/mật khẩu. Thông tin sai hoặc tài khoản không còn hoạt động trả 401 với
+        thông báo chung; không tiết lộ tài khoản có tồn tại hay không.
+
+
+        Quyền: Khách hàng, tài xế, vận hành và quản trị. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-08.'
+      x-function: login
+      x-functional-requirements:
+      - FR-01
+      - FR-02
+      x-authorization: Khách hàng, tài xế, vận hành và quản trị
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Đăng nhập thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResult'
+              example:
+                accessToken: EXAMPLE_ACCESS_TOKEN
+                tokenType: Bearer
+                expiresIn: 3600
+                user:
+                  id: 11111111-1111-4111-8111-111111111111
+                  fullName: Nguyễn Văn An
+                  phone: '+84901234567'
+                  role: customer
+                  status: active
+                  createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-08
+      security: []
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              phone: '+84901234567'
+              password: ExampleOnly_ChangeMe_123!
+      x-codeSamples:
+      - lang: cURL
+        label: Đăng nhập
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/auth/login' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"phone\": \"+84901234567\", \"password\":\
+          \ \"ExampleOnly_ChangeMe_123!\"}'"
+  /users:
+    post:
+      tags:
+      - MVP-01
+      summary: Tạo mới một user khách hàng
+      operationId: createUser
+      description: 'Vận hành tạo tài khoản khách hàng; role do máy chủ đặt. Tài khoản tài xế dùng POST /drivers.
+        Trùng số điện thoại trả 409 ACCOUNT_EXISTS.
+
+
+        Quyền: operator/admin có users:create. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-08, TBD-11.'
+      x-function: createUser
+      x-functional-requirements:
+      - FR-20
+      x-authorization: operator/admin có users:create
+      x-status: proposed-contract
+      responses:
+        '201':
+          description: Tạo mới một user khách hàng thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                role: customer
+                status: active
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-08
+      - TBD-11
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              fullName: Nguyễn Văn An
+              phone: '+84901234567'
+              password: ExampleOnly_ChangeMe_123!
+      x-codeSamples:
+      - lang: cURL
+        label: Tạo mới một user khách hàng
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/users' \\\n  -H 'Accept: application/json' \\\n\
+          \  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Content-Type: application/json' \\\n  --data\
+          \ '{\"fullName\": \"Nguyễn Văn An\", \"phone\": \"+84901234567\", \"password\": \"ExampleOnly_ChangeMe_123!\"\
+          }'"
+      security:
+      - BearerAuth: []
+    get:
+      tags:
+      - MVP-01
+      summary: Lấy danh sách user khách hàng
+      operationId: listUsers
+      description: 'Lấy danh sách khách hàng có phân trang. Không cho khách thường đọc danh sách tài khoản.
+
+
+        Quyền: operator/admin có users:read. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: listUsers
+      x-functional-requirements:
+      - FR-20
+      x-authorization: operator/admin có users:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy danh sách user khách hàng thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPage'
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  fullName: Nguyễn Văn An
+                  phone: '+84901234567'
+                  role: customer
+                  status: active
+                  createdAt: '2026-09-13T08:00:00Z'
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: status
+        in: query
+        required: false
+        description: Trạng thái tài khoản; không dùng để xóa dữ liệu lịch sử
+        schema:
+          type: string
+          description: Trạng thái tài khoản; không dùng để xóa dữ liệu lịch sử
+          example: active
+          enum:
+          - active
+          - inactive
+      - name: search
+        in: query
+        required: false
+        description: Tìm theo tên hoặc điện thoại trong phạm vi quyền
+        schema:
+          type: string
+          description: Tìm theo tên hoặc điện thoại trong phạm vi quyền
+          example: Nguyễn
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy danh sách user khách hàng
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/users' \\\n  -H 'Accept: application/json' \\\n\
+          \  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /users/me:
+    get:
+      tags:
+      - MVP-01
+      summary: Lấy hồ sơ tài khoản đang đăng nhập
+      operationId: getMyProfile
+      description: 'Lấy danh tính từ Bearer token; không nhận userId từ client.
+
+
+        Quyền: Mọi tài khoản đang hoạt động. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: getMyProfile
+      x-functional-requirements:
+      - FR-01
+      - FR-02
+      x-authorization: Mọi tài khoản đang hoạt động
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy hồ sơ tài khoản đang đăng nhập thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                role: customer
+                status: active
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy hồ sơ tài khoản đang đăng nhập
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/users/me' \\\n  -H 'Accept: application/json' \\\
+          \n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+    patch:
+      tags:
+      - MVP-01
+      summary: Cập nhật hồ sơ của chính mình
+      operationId: updateMyProfile
+      description: 'Cập nhật một phần hồ sơ. Không cho sửa role/status/password qua endpoint này.
+
+
+        Quyền: Chủ tài khoản. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-08.'
+      x-function: updateMyProfile
+      x-functional-requirements:
+      - FR-01
+      - FR-02
+      x-authorization: Chủ tài khoản
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Cập nhật hồ sơ của chính mình thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                role: customer
+                status: active
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-08
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+            example:
+              fullName: Nguyễn Văn An
+              phone: '+84901234567'
+      x-codeSamples:
+      - lang: cURL
+        label: Cập nhật hồ sơ của chính mình
+        source: "curl -X PATCH 'https://api.cab.example.com/api/v1/users/me' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Content-Type: application/json' \\\n\
+          \  --data '{\"fullName\": \"Nguyễn Văn An\", \"phone\": \"+84901234567\"}'"
+      security:
+      - BearerAuth: []
+  /users/{userId}:
+    get:
+      tags:
+      - MVP-01
+      summary: Lấy chi tiết một user
+      operationId: getUserById
+      description: 'Tra cứu một tài khoản theo ID; kiểm tra phạm vi quyền với dữ liệu cá nhân.
+
+
+        Quyền: operator/admin có users:read. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: getUserById
+      x-functional-requirements:
+      - FR-20
+      x-authorization: operator/admin có users:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy chi tiết một user thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                role: customer
+                status: active
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy chi tiết một user
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111' \\\n\
+          \  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+    patch:
+      tags:
+      - MVP-01
+      summary: Cập nhật thông tin một user
+      operationId: updateUser
+      description: 'Chỉ sửa tên/điện thoại. Vai trò và trạng thái dùng chức năng riêng có quyền nhạy cảm.
+
+
+        Quyền: operator/admin có users:update. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-08, TBD-11.'
+      x-function: updateUser
+      x-functional-requirements:
+      - FR-20
+      x-authorization: operator/admin có users:update
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Cập nhật thông tin một user thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                role: customer
+                status: active
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-08
+      - TBD-11
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+            example:
+              fullName: Nguyễn Văn An
+              phone: '+84901234567'
+      x-codeSamples:
+      - lang: cURL
+        label: Cập nhật thông tin một user
+        source: "curl -X PATCH 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111' \\\
+          \n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Content-Type:\
+          \ application/json' \\\n  --data '{\"fullName\": \"Nguyễn Văn An\", \"phone\": \"+84901234567\"}'"
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - MVP-01
+      summary: Xóa mềm user (vô hiệu hóa tài khoản)
+      operationId: deleteUser
+      description: 'Đề xuất để hoàn thiện CRUD theo yêu cầu bài làm. Đặt inactive và thu hồi quyền truy cập phiên
+        hiện tại; giữ lịch sử chuyến/giao dịch theo TBD-07. Gọi lặp với tài khoản inactive trả 204. Có chuyến hoặc
+        nghĩa vụ đang xử lý trả 409 ACCOUNT_IN_USE. Không được vô hiệu hóa quản trị cuối cùng.
+
+
+        Quyền: admin có users:deactivate. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-07, TBD-11.'
+      x-function: deleteUser
+      x-functional-requirements:
+      - FR-20
+      x-authorization: admin có users:deactivate
+      x-status: proposed-extension
+      responses:
+        '204':
+          description: Thực hiện thành công, không có response body.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-07
+      - TBD-11
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Xóa mềm user (vô hiệu hóa tài khoản)
+        source: "curl -X DELETE 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /users/{userId}/status:
+    patch:
+      tags:
+      - MVP-01
+      summary: Thay đổi trạng thái tài khoản
+      operationId: changeUserStatus
+      description: 'Kích hoạt/vô hiệu hóa theo chính sách được duyệt; không bỏ qua điều kiện duyệt tài xế hoặc nghĩa
+        vụ đang xử lý. Lưu vết lý do.
+
+
+        Quyền: admin có users:status. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-08, TBD-11.'
+      x-function: changeUserStatus
+      x-functional-requirements:
+      - FR-20
+      - FR-24
+      x-authorization: admin có users:status
+      x-status: proposed-extension
+      responses:
+        '200':
+          description: Thay đổi trạng thái tài khoản thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                fullName: Nguyễn Văn An
+                phone: '+84901234567'
+                role: customer
+                status: active
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-08
+      - TBD-11
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeAccountStatusRequest'
+            example:
+              status: active
+              reason: Tạm khóa theo yêu cầu hỗ trợ
+      x-codeSamples:
+      - lang: cURL
+        label: Thay đổi trạng thái tài khoản
+        source: "curl -X PATCH 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111/status'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Content-Type:\
+          \ application/json' \\\n  --data '{\"status\": \"active\", \"reason\": \"Tạm khóa theo yêu cầu hỗ trợ\"\
+          }'"
+      security:
+      - BearerAuth: []
+components:
+  schemas:
+    RolePage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    Role:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        name:
+          type: string
+          description: Vai trò; ma trận quyền chi tiết TBD-11
+          example: customer
+          enum:
+          - customer
+          - driver
+          - operator
+          - admin
+        permissions:
+          type: array
+          items:
+            type: string
+            description: Mã quyền
+            example: users:read
+          description: Danh sách
+      required:
+      - id
+      - name
+      - permissions
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        errorCode:
+          type: string
+          description: Mã lỗi nghiệp vụ
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Thông báo dễ hiểu
+          example: Dữ liệu không hợp lệ.
+        traceId:
+          type: string
+          description: Mã truy vết lỗi
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      required:
+      - errorCode
+      - message
+      - traceId
+    PermissionPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    Permission:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          description: Mã quyền
+          example: users:read
+        description:
+          type: string
+          description: Ý nghĩa quyền
+          example: Tra cứu khách hàng
+      required:
+      - code
+      - description
+    RoleAssignments:
+      type: object
+      additionalProperties: false
+      properties:
+        userId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        roleIds:
+          type: array
+          items:
+            type: string
+            description: Mã định danh
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+          description: Danh sách
+      required:
+      - userId
+      - roleIds
+    RoleAssignmentRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        roleIds:
+          type: array
+          items:
+            type: string
+            description: Mã định danh
+            example: 11111111-1111-4111-8111-111111111111
+            format: uuid
+          uniqueItems: true
+          minItems: 1
+          description: Các vai trò đã được định nghĩa; chống tự nâng quyền theo TBD-11
+      required:
+      - roleIds
+    User:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã tài khoản
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        fullName:
+          type: string
+          description: Họ và tên
+          example: Nguyễn Văn An
+          minLength: 1
+        phone:
+          type: string
+          description: Số điện thoại; định dạng và xác minh là đề xuất theo TBD-08
+          example: '+84901234567'
+          minLength: 1
+        role:
+          type: string
+          description: Vai trò; ma trận quyền chi tiết TBD-11
+          example: customer
+          enum:
+          - customer
+          - driver
+          - operator
+          - admin
+        status:
+          type: string
+          description: Trạng thái tài khoản; không dùng để xóa dữ liệu lịch sử
+          example: active
+          enum:
+          - active
+          - inactive
+        createdAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      required:
+      - id
+      - fullName
+      - phone
+      - role
+      - status
+      - createdAt
+    Registration:
+      type: object
+      additionalProperties: false
+      properties:
+        fullName:
+          type: string
+          description: Họ và tên
+          example: Nguyễn Văn An
+          minLength: 1
+        phone:
+          type: string
+          description: Số điện thoại; định dạng và xác minh là đề xuất theo TBD-08
+          example: '+84901234567'
+          minLength: 1
+        password:
+          type: string
+          description: Mật khẩu đầu vào; chính sách độ mạnh TBD-08. Không xuất trong response/log.
+          example: ExampleOnly_ChangeMe_123!
+          minLength: 1
+          writeOnly: true
+      required:
+      - fullName
+      - phone
+      - password
+      description: Đề xuất dùng điện thoại/mật khẩu; không cho client truyền role hoặc trạng thái đặc quyền.
+    Driver:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã tài xế
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        accountId:
+          type: string
+          description: Mã tài khoản
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        fullName:
+          type: string
+          description: Họ và tên
+          example: Nguyễn Văn An
+          minLength: 1
+        phone:
+          type: string
+          description: Số điện thoại; định dạng và xác minh là đề xuất theo TBD-08
+          example: '+84901234567'
+          minLength: 1
+        status:
+          type: string
+          description: Trạng thái tài khoản; không dùng để xóa dữ liệu lịch sử
+          example: active
+          enum:
+          - active
+          - inactive
+        availability:
+          type: string
+          description: busy do hệ thống đặt khi phân công; client chỉ được chọn offline/available
+          example: available
+          enum:
+          - offline
+          - available
+          - busy
+      required:
+      - id
+      - accountId
+      - fullName
+      - phone
+      - status
+      - availability
+    LoginResult:
+      type: object
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+          description: Bearer token minh họa, không phải token thật
+          example: EXAMPLE_ACCESS_TOKEN
+        tokenType:
+          type: string
+          description: Loại token
+          example: Bearer
+          enum:
+          - Bearer
+        expiresIn:
+          type: integer
+          description: Thời gian hiệu lực theo giây; ví dụ, chính sách thực tế TBD-08
+          example: 3600
+          minimum: 1
+        user:
+          $ref: '#/components/schemas/User'
+      required:
+      - accessToken
+      - tokenType
+      - expiresIn
+      - user
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        phone:
+          type: string
+          description: Số điện thoại; định dạng và xác minh là đề xuất theo TBD-08
+          example: '+84901234567'
+          minLength: 1
+        password:
+          type: string
+          description: Mật khẩu đầu vào; chính sách độ mạnh TBD-08. Không xuất trong response/log.
+          example: ExampleOnly_ChangeMe_123!
+          minLength: 1
+          writeOnly: true
+      required:
+      - phone
+      - password
+    CreateUserRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        fullName:
+          type: string
+          description: Họ và tên
+          example: Nguyễn Văn An
+          minLength: 1
+        phone:
+          type: string
+          description: Số điện thoại; định dạng và xác minh là đề xuất theo TBD-08
+          example: '+84901234567'
+          minLength: 1
+        password:
+          type: string
+          description: Mật khẩu đầu vào; chính sách độ mạnh TBD-08. Không xuất trong response/log.
+          example: ExampleOnly_ChangeMe_123!
+          minLength: 1
+          writeOnly: true
+      required:
+      - fullName
+      - phone
+      - password
+      description: Vận hành tạo tài khoản khách hàng. Tạo tài xế qua Drivers. Không nhận role từ client.
+    UserPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    UpdateUserRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        fullName:
+          type: string
+          description: Họ và tên
+          example: Nguyễn Văn An
+          minLength: 1
+        phone:
+          type: string
+          description: Số điện thoại; định dạng và xác minh là đề xuất theo TBD-08
+          example: '+84901234567'
+          minLength: 1
+      description: Chỉ cập nhật trường gửi lên; thay số điện thoại theo cơ chế xác minh TBD-08.
+      minProperties: 1
+    ChangeAccountStatusRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          description: Trạng thái tài khoản; không dùng để xóa dữ liệu lịch sử
+          example: active
+          enum:
+          - active
+          - inactive
+        reason:
+          type: string
+          description: Lý do thay đổi trạng thái
+          example: Tạm khóa theo yêu cầu hỗ trợ
+          minLength: 1
+      required:
+      - status
+      - reason
+  responses:
+    BadRequest:
+      description: Dữ liệu hoặc tham số không hợp lệ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: VALIDATION_ERROR
+            message: Dữ liệu hoặc tham số không hợp lệ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unauthorized:
+      description: Thiếu, hết hạn hoặc không hợp lệ thông tin xác thực.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: UNAUTHENTICATED
+            message: Thiếu, hết hạn hoặc không hợp lệ thông tin xác thực.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Forbidden:
+      description: Không đủ quyền hoặc không sở hữu tài nguyên.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: FORBIDDEN
+            message: Không đủ quyền hoặc không sở hữu tài nguyên.
+            traceId: 11111111-1111-4111-8111-111111111111
+    NotFound:
+      description: Không tìm thấy tài nguyên trong phạm vi được phép truy cập.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: RESOURCE_NOT_FOUND
+            message: Không tìm thấy tài nguyên trong phạm vi được phép truy cập.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Conflict:
+      description: Trạng thái xung đột, bản ghi trùng hoặc chính sách chưa được cấu hình.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: STATE_CONFLICT
+            message: Trạng thái xung đột, bản ghi trùng hoặc chính sách chưa được cấu hình.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unprocessable:
+      description: Dữ liệu đúng cấu trúc nhưng không đáp ứng điều kiện nghiệp vụ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: BUSINESS_RULE_VIOLATION
+            message: Dữ liệu đúng cấu trúc nhưng không đáp ứng điều kiện nghiệp vụ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    TooManyRequests:
+      description: Vượt giới hạn yêu cầu theo chính sách vận hành.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: RATE_LIMITED
+            message: Vượt giới hạn yêu cầu theo chính sách vận hành.
+            traceId: 11111111-1111-4111-8111-111111111111
+    InternalError:
+      description: Lỗi hệ thống; không trả chi tiết nội bộ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: INTERNAL_ERROR
+            message: Lỗi hệ thống; không trả chi tiết nội bộ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unavailable:
+      description: Thành phần cần thiết tạm không khả dụng; không đồng nghĩa toàn CAB dừng.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: SERVICE_UNAVAILABLE
+            message: Thành phần cần thiết tạm không khả dụng; không đồng nghĩa toàn CAB dừng.
+            traceId: 11111111-1111-4111-8111-111111111111
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Trang bắt đầu từ 1; mặc định đề xuất 1.
+      schema:
+        type: integer
+        description: Trang
+        example: 1
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: Số phần tử mỗi trang; mặc định 20, tối đa 100 là đề xuất kỹ thuật.
+      schema:
+        type: integer
+        description: Kích thước trang
+        example: 20
+        minimum: 1
+        maximum: 100
+        default: 20
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Token do đăng nhập cung cấp; không mặc định JWT. Quyền/ownership kiểm tra tại máy chủ.
+tags:
+- name: MVP-01
+  description: Tài khoản và phân quyền

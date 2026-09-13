@@ -1,0 +1,925 @@
+openapi: 3.0.3
+info:
+  title: MVP-03 — Đặt xe và điều phối
+  version: 0.2.0
+  description: Đặc tả API đề xuất cho CAB theo module MVP của SRS. File độc lập để nhập Swagger Editor. Các chính
+    sách TBD chưa phải yêu cầu đã phê duyệt; URL chỉ minh họa, chưa có backend.
+servers:
+- url: https://api.cab.example.com/api/v1
+  description: Máy chủ minh họa
+security:
+- BearerAuth: []
+paths:
+  /dispatch-offers:
+    get:
+      tags:
+      - MVP-03
+      summary: Lấy danh sách đề nghị nhận chuyến
+      operationId: listMyDispatchOffers
+      description: 'Chỉ trả đề nghị của chính tài xế; hỗ trợ đọc lại khi thông báo ngoài gián đoạn. Offer được hệ
+        thống tạo nội bộ, không do khách/tài xế tự tạo.
+
+
+        Quyền: driver. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: listMyDispatchOffers
+      x-functional-requirements:
+      - FR-07
+      - FR-19
+      x-authorization: driver
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy danh sách đề nghị nhận chuyến thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferPage'
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  tripId: 11111111-1111-4111-8111-111111111111
+                  driverId: 11111111-1111-4111-8111-111111111111
+                  pickup:
+                    address: Điểm đón mẫu, TP.HCM
+                    coordinates:
+                      latitude: 10.7769
+                      longitude: 106.7009
+                  destination:
+                    address: Điểm đón mẫu, TP.HCM
+                    coordinates:
+                      latitude: 10.7769
+                      longitude: 106.7009
+                  status: pending
+                  offeredAt: '2026-09-13T08:00:00Z'
+                  expiresAt: '2026-09-13T08:01:00Z'
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: status
+        in: query
+        required: false
+        description: Lọc trạng thái đề nghị
+        schema:
+          type: string
+          description: Lọc trạng thái đề nghị
+          example: pending
+          enum:
+          - pending
+          - accepted
+          - declined
+          - expired
+          - invalidated
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy danh sách đề nghị nhận chuyến
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/dispatch-offers' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /dispatch-offers/{offerId}:
+    get:
+      tags:
+      - MVP-03
+      summary: Lấy chi tiết đề nghị nhận chuyến
+      operationId: getDispatchOffer
+      description: 'Kiểm tra offer thuộc tài xế đang đăng nhập.
+
+
+        Quyền: Tài xế nhận đề nghị. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: getDispatchOffer
+      x-functional-requirements:
+      - FR-07
+      x-authorization: Tài xế nhận đề nghị
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy chi tiết đề nghị nhận chuyến thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                tripId: 11111111-1111-4111-8111-111111111111
+                driverId: 11111111-1111-4111-8111-111111111111
+                pickup:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                destination:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                status: pending
+                offeredAt: '2026-09-13T08:00:00Z'
+                expiresAt: '2026-09-13T08:01:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - name: offerId
+        in: path
+        required: true
+        description: Mã offerId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy chi tiết đề nghị nhận chuyến
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/dispatch-offers/11111111-1111-4111-8111-111111111111'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /dispatch-offers/{offerId}/accept:
+    post:
+      tags:
+      - MVP-03
+      summary: Chấp nhận chuyến
+      operationId: acceptDispatchOffer
+      description: 'Kiểm tra thời hạn, trạng thái chuyến và tài xế còn sẵn sàng trong cùng thao tác nguyên tử. Tạo
+        tối đa một phân công hiệu lực, đặt busy, vô hiệu offer khác, phát driver_assigned. Offer hết hạn trả 409
+        OFFER_EXPIRED; đã có tài xế khác trả 409 TRIP_ALREADY_ASSIGNED.
+
+
+        Quyền: Tài xế nhận đề nghị. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-02, TBD-03.
+
+
+        Idempotency-Key bắt buộc: cùng chủ thể + operationId + key và cùng path/query/body trả lại cùng kết quả/tài
+        nguyên, không thực hiện lần hai; đổi path/query/body với cùng key trả 409 IDEMPOTENCY_CONFLICT. Thời hạn
+        lưu key cần được cấu hình trước triển khai.'
+      x-function: acceptDispatchOffer
+      x-functional-requirements:
+      - FR-07
+      - FR-09
+      - FR-18
+      x-authorization: Tài xế nhận đề nghị
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Chấp nhận chuyến thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                tripId: 11111111-1111-4111-8111-111111111111
+                driverId: 11111111-1111-4111-8111-111111111111
+                vehicleId: 11111111-1111-4111-8111-111111111111
+                assignedAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-02
+      - TBD-03
+      parameters:
+      - name: offerId
+        in: path
+        required: true
+        description: Mã offerId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      x-codeSamples:
+      - lang: cURL
+        label: Chấp nhận chuyến
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/dispatch-offers/11111111-1111-4111-8111-111111111111/accept'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Idempotency-Key:\
+          \ example-request-001'"
+      security:
+      - BearerAuth: []
+  /dispatch-offers/{offerId}/decline:
+    post:
+      tags:
+      - MVP-03
+      summary: Từ chối chuyến
+      operationId: declineDispatchOffer
+      description: 'Đánh dấu declined, kích hoạt tìm ứng viên khác trên cùng tripId. Bộ hẹn giờ nội bộ xử lý hết
+        hạn tương tự; không cần client gọi để tiếp tục tìm.
+
+
+        Quyền: Tài xế nhận đề nghị. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-03.
+
+
+        Idempotency-Key bắt buộc: cùng chủ thể + operationId + key và cùng path/query/body trả lại cùng kết quả/tài
+        nguyên, không thực hiện lần hai; đổi path/query/body với cùng key trả 409 IDEMPOTENCY_CONFLICT. Thời hạn
+        lưu key cần được cấu hình trước triển khai.'
+      x-function: declineDispatchOffer
+      x-functional-requirements:
+      - FR-07
+      - FR-08
+      x-authorization: Tài xế nhận đề nghị
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Từ chối chuyến thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                tripId: 11111111-1111-4111-8111-111111111111
+                driverId: 11111111-1111-4111-8111-111111111111
+                pickup:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                destination:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                status: declined
+                offeredAt: '2026-09-13T08:00:00Z'
+                expiresAt: '2026-09-13T08:01:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-03
+      parameters:
+      - name: offerId
+        in: path
+        required: true
+        description: Mã offerId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      x-codeSamples:
+      - lang: cURL
+        label: Từ chối chuyến
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/dispatch-offers/11111111-1111-4111-8111-111111111111/decline'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Idempotency-Key:\
+          \ example-request-001'"
+      security:
+      - BearerAuth: []
+  /trips:
+    post:
+      tags:
+      - MVP-03
+      summary: Tạo mới yêu cầu đặt xe
+      operationId: createTrip
+      description: 'Tạo chuyến searching, ghi sự kiện booking_received và khởi động điều phối nền. Không chờ tìm
+        được tài xế mới trả response. FR-06/08 chạy nội bộ: chọn ứng viên, gửi offer, tìm tiếp khi từ chối/hết hạn;
+        hết điều kiện thì no_driver. Khách không phải tạo lại chuyến.
+
+
+        Quyền: customer. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-02, TBD-03.
+
+
+        Idempotency-Key bắt buộc: cùng chủ thể + operationId + key và cùng path/query/body trả lại cùng kết quả/tài
+        nguyên, không thực hiện lần hai; đổi path/query/body với cùng key trả 409 IDEMPOTENCY_CONFLICT. Thời hạn
+        lưu key cần được cấu hình trước triển khai.'
+      x-function: createTrip
+      x-functional-requirements:
+      - FR-05
+      - FR-06
+      - FR-08
+      - FR-18
+      x-authorization: customer
+      x-status: proposed-contract
+      responses:
+        '201':
+          description: Tạo mới yêu cầu đặt xe thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                customerId: 11111111-1111-4111-8111-111111111111
+                serviceTypeId: 11111111-1111-4111-8111-111111111111
+                pickup:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                destination:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                status: searching
+                createdAt: '2026-09-13T08:00:00Z'
+                updatedAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-02
+      - TBD-03
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTripRequest'
+            example:
+              pickup:
+                address: Điểm đón mẫu, TP.HCM
+                coordinates:
+                  latitude: 10.7769
+                  longitude: 106.7009
+              destination:
+                address: Điểm đón mẫu, TP.HCM
+                coordinates:
+                  latitude: 10.7769
+                  longitude: 106.7009
+              serviceTypeId: 11111111-1111-4111-8111-111111111111
+      x-codeSamples:
+      - lang: cURL
+        label: Tạo mới yêu cầu đặt xe
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/trips' \\\n  -H 'Accept: application/json' \\\n\
+          \  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Idempotency-Key: example-request-001' \\\n\
+          \  -H 'Content-Type: application/json' \\\n  --data '{\"pickup\": {\"address\": \"Điểm đón mẫu, TP.HCM\"\
+          , \"coordinates\": {\"latitude\": 10.7769, \"longitude\": 106.7009}}, \"destination\": {\"address\": \"\
+          Điểm đón mẫu, TP.HCM\", \"coordinates\": {\"latitude\": 10.7769, \"longitude\": 106.7009}}, \"serviceTypeId\"\
+          : \"11111111-1111-4111-8111-111111111111\"}'"
+      security:
+      - BearerAuth: []
+  /trips/{tripId}/cancellations:
+    post:
+      tags:
+      - MVP-03
+      summary: Hủy chuyến theo chính sách
+      operationId: cancelTrip
+      description: 'Chỉ hủy tại trạng thái được duyệt; giải phóng phân công và vô hiệu offer còn mở một cách nhất
+        quán. Chưa cấu hình chính sách trả 409 POLICY_NOT_CONFIGURED, không tự quyết định phí hoặc quyền hủy.
+
+
+        Quyền: Actor được chính sách TBD-04 cho phép. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-04.
+
+
+        Idempotency-Key bắt buộc: cùng chủ thể + operationId + key và cùng path/query/body trả lại cùng kết quả/tài
+        nguyên, không thực hiện lần hai; đổi path/query/body với cùng key trả 409 IDEMPOTENCY_CONFLICT. Thời hạn
+        lưu key cần được cấu hình trước triển khai.'
+      x-function: cancelTrip
+      x-functional-requirements:
+      - FR-27
+      - FR-19
+      x-authorization: Actor được chính sách TBD-04 cho phép
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Hủy chuyến theo chính sách thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                customerId: 11111111-1111-4111-8111-111111111111
+                serviceTypeId: 11111111-1111-4111-8111-111111111111
+                pickup:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                destination:
+                  address: Điểm đón mẫu, TP.HCM
+                  coordinates:
+                    latitude: 10.7769
+                    longitude: 106.7009
+                status: cancelled
+                createdAt: '2026-09-13T08:00:00Z'
+                updatedAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-04
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã tripId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancellationRequest'
+            example:
+              reason: Khách thay đổi kế hoạch
+      x-codeSamples:
+      - lang: cURL
+        label: Hủy chuyến theo chính sách
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/trips/11111111-1111-4111-8111-111111111111/cancellations'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Idempotency-Key:\
+          \ example-request-001' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"reason\": \"Khách thay\
+          \ đổi kế hoạch\"}'"
+      security:
+      - BearerAuth: []
+components:
+  schemas:
+    OfferPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Offer'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    Offer:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tripId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        driverId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        pickup:
+          $ref: '#/components/schemas/Place'
+        destination:
+          $ref: '#/components/schemas/Place'
+        status:
+          type: string
+          description: Trạng thái đề nghị
+          example: pending
+          enum:
+          - pending
+          - accepted
+          - declined
+          - expired
+          - invalidated
+        offeredAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+        expiresAt:
+          type: string
+          description: Thời hạn do chính sách TBD-03 quyết định
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      required:
+      - id
+      - tripId
+      - driverId
+      - pickup
+      - destination
+      - status
+      - offeredAt
+      - expiresAt
+    Place:
+      type: object
+      additionalProperties: false
+      properties:
+        address:
+          type: string
+          description: Địa chỉ hiển thị
+          example: Điểm đón mẫu, TP.HCM
+          minLength: 1
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+      required:
+      - address
+      - coordinates
+    Coordinates:
+      type: object
+      additionalProperties: false
+      properties:
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          description: Vĩ độ
+          example: 10.7769
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          description: Kinh độ
+          example: 106.7009
+      required:
+      - latitude
+      - longitude
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        errorCode:
+          type: string
+          description: Mã lỗi nghiệp vụ
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Thông báo dễ hiểu
+          example: Dữ liệu không hợp lệ.
+        traceId:
+          type: string
+          description: Mã truy vết lỗi
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      required:
+      - errorCode
+      - message
+      - traceId
+    Assignment:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tripId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        driverId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        vehicleId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        assignedAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      required:
+      - id
+      - tripId
+      - driverId
+      - vehicleId
+      - assignedAt
+    Trip:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        customerId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        serviceTypeId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        pickup:
+          $ref: '#/components/schemas/Place'
+        destination:
+          $ref: '#/components/schemas/Place'
+        status:
+          type: string
+          description: Trạng thái chuyến, độc lập với trạng thái thanh toán
+          example: searching
+          enum:
+          - searching
+          - assigned
+          - arrived
+          - picked_up
+          - in_progress
+          - completed
+          - no_driver
+          - cancelled
+        createdAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+        updatedAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      required:
+      - id
+      - customerId
+      - serviceTypeId
+      - pickup
+      - destination
+      - status
+      - createdAt
+      - updatedAt
+    CreateTripRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        pickup:
+          $ref: '#/components/schemas/Place'
+        destination:
+          $ref: '#/components/schemas/Place'
+        serviceTypeId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      required:
+      - pickup
+      - destination
+      - serviceTypeId
+      description: customerId lấy từ danh tính đã xác thực; không cho gửi driverId, status hoặc fare.
+    CancellationRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          description: Lý do hủy; danh mục và quyền hủy TBD-04
+          example: Khách thay đổi kế hoạch
+          minLength: 1
+      required:
+      - reason
+  responses:
+    BadRequest:
+      description: Dữ liệu hoặc tham số không hợp lệ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: VALIDATION_ERROR
+            message: Dữ liệu hoặc tham số không hợp lệ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unauthorized:
+      description: Thiếu, hết hạn hoặc không hợp lệ thông tin xác thực.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: UNAUTHENTICATED
+            message: Thiếu, hết hạn hoặc không hợp lệ thông tin xác thực.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Forbidden:
+      description: Không đủ quyền hoặc không sở hữu tài nguyên.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: FORBIDDEN
+            message: Không đủ quyền hoặc không sở hữu tài nguyên.
+            traceId: 11111111-1111-4111-8111-111111111111
+    NotFound:
+      description: Không tìm thấy tài nguyên trong phạm vi được phép truy cập.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: RESOURCE_NOT_FOUND
+            message: Không tìm thấy tài nguyên trong phạm vi được phép truy cập.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Conflict:
+      description: Trạng thái xung đột, bản ghi trùng hoặc chính sách chưa được cấu hình.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: STATE_CONFLICT
+            message: Trạng thái xung đột, bản ghi trùng hoặc chính sách chưa được cấu hình.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unprocessable:
+      description: Dữ liệu đúng cấu trúc nhưng không đáp ứng điều kiện nghiệp vụ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: BUSINESS_RULE_VIOLATION
+            message: Dữ liệu đúng cấu trúc nhưng không đáp ứng điều kiện nghiệp vụ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    TooManyRequests:
+      description: Vượt giới hạn yêu cầu theo chính sách vận hành.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: RATE_LIMITED
+            message: Vượt giới hạn yêu cầu theo chính sách vận hành.
+            traceId: 11111111-1111-4111-8111-111111111111
+    InternalError:
+      description: Lỗi hệ thống; không trả chi tiết nội bộ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: INTERNAL_ERROR
+            message: Lỗi hệ thống; không trả chi tiết nội bộ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unavailable:
+      description: Thành phần cần thiết tạm không khả dụng; không đồng nghĩa toàn CAB dừng.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: SERVICE_UNAVAILABLE
+            message: Thành phần cần thiết tạm không khả dụng; không đồng nghĩa toàn CAB dừng.
+            traceId: 11111111-1111-4111-8111-111111111111
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Trang bắt đầu từ 1; mặc định đề xuất 1.
+      schema:
+        type: integer
+        description: Trang
+        example: 1
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: Số phần tử mỗi trang; mặc định 20, tối đa 100 là đề xuất kỹ thuật.
+      schema:
+        type: integer
+        description: Kích thước trang
+        example: 20
+        minimum: 1
+        maximum: 100
+        default: 20
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Khóa chống xử lý lặp do client tạo. Phạm vi chủ thể + operationId; payload khác cùng key trả
+        409. Thời hạn lưu theo cấu hình đã duyệt.
+      schema:
+        type: string
+        description: Khóa yêu cầu
+        example: example-request-001
+        minLength: 1
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Token do đăng nhập cung cấp; không mặc định JWT. Quyền/ownership kiểm tra tại máy chủ.
+tags:
+- name: MVP-03
+  description: Đặt xe và điều phối

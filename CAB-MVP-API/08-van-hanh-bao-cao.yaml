@@ -1,0 +1,1235 @@
+openapi: 3.0.3
+info:
+  title: MVP-08 — Vận hành và báo cáo
+  version: 0.2.0
+  description: Đặc tả API đề xuất cho CAB theo module MVP của SRS. File độc lập để nhập Swagger Editor. Các chính
+    sách TBD chưa phải yêu cầu đã phê duyệt; URL chỉ minh họa, chưa có backend.
+servers:
+- url: https://api.cab.example.com/api/v1
+  description: Máy chủ minh họa
+security:
+- BearerAuth: []
+paths:
+  /audit-logs:
+    get:
+      tags:
+      - MVP-08
+      summary: Tra cứu nhật ký thao tác quan trọng
+      operationId: listAuditLogs
+      description: 'Audit được ghi tự động từ thao tác quan trọng; không cung cấp API công khai tạo/sửa/xóa log.
+        Không ghi mật khẩu, token, chữ ký hoặc dữ liệu thanh toán nhạy cảm.
+
+
+        Quyền: admin hoặc người có audit:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-07, TBD-11.'
+      x-function: listAuditLogs
+      x-functional-requirements:
+      - FR-26
+      x-authorization: admin hoặc người có audit:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Tra cứu nhật ký thao tác quan trọng thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogPage'
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  actorReference: system:dispatch
+                  action: trip.assigned
+                  entityReference: trip:11111111-1111-4111-8111-111111111111
+                  result: success
+                  occurredAt: '2026-09-13T08:00:00Z'
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-07
+      - TBD-11
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: entityReference
+        in: query
+        required: false
+        description: Lọc đối tượng
+        schema:
+          type: string
+          description: Lọc đối tượng
+          example: trip:11111111-1111-4111-8111-111111111111
+      x-codeSamples:
+      - lang: cURL
+        label: Tra cứu nhật ký thao tác quan trọng
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/audit-logs' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /audit-logs/{auditId}:
+    get:
+      tags:
+      - MVP-08
+      summary: Lấy chi tiết một bản ghi audit
+      operationId: getAuditLogById
+      description: 'Đọc bản ghi trong phạm vi được cấp quyền; không tiết lộ bí mật kỹ thuật.
+
+
+        Quyền: admin hoặc người có audit:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-07, TBD-11.'
+      x-function: getAuditLogById
+      x-functional-requirements:
+      - FR-26
+      x-authorization: admin hoặc người có audit:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy chi tiết một bản ghi audit thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                actorReference: system:dispatch
+                action: trip.assigned
+                entityReference: trip:11111111-1111-4111-8111-111111111111
+                result: success
+                occurredAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-07
+      - TBD-11
+      parameters:
+      - name: auditId
+        in: path
+        required: true
+        description: Mã auditId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy chi tiết một bản ghi audit
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/audit-logs/11111111-1111-4111-8111-111111111111'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /operations/transactions:
+    get:
+      tags:
+      - MVP-08
+      summary: Tra cứu lịch sử giao dịch vận hành
+      operationId: listTransactions
+      description: 'Tra cứu giao dịch tập trung theo chuyến/trạng thái; chỉ trả dữ liệu trong phạm vi quyền.
+
+
+        Quyền: operator/admin có payments:read. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.
+
+
+        checkoutUrl chỉ trả cho khách sở hữu giao dịch; trả null cho tài xế/vận hành. Không ghi URL chứa token vào
+        log.'
+      x-function: listTransactions
+      x-functional-requirements:
+      - FR-23
+      x-authorization: operator/admin có payments:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Tra cứu lịch sử giao dịch vận hành thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPage'
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  tripId: 11111111-1111-4111-8111-111111111111
+                  method: electronic
+                  amount: 125000
+                  currency: VND
+                  status: processing
+                  providerReference: provider_tx_example
+                  checkoutUrl: https://payments.example.com/checkout/example
+                  createdAt: '2026-09-13T08:00:00Z'
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: tripId
+        in: query
+        required: false
+        description: Mã định danh
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - name: status
+        in: query
+        required: false
+        description: pending/processing là chưa có kết quả chắc chắn; không được thu lại
+        schema:
+          type: string
+          description: pending/processing là chưa có kết quả chắc chắn; không được thu lại
+          example: processing
+          enum:
+          - pending
+          - processing
+          - succeeded
+          - failed
+      x-codeSamples:
+      - lang: cURL
+        label: Tra cứu lịch sử giao dịch vận hành
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/operations/transactions' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /operations/support-cases:
+    post:
+      tags:
+      - MVP-08
+      summary: Ghi nhận sự cố chuyến đi
+      operationId: createSupportCase
+      description: 'Đề xuất tài nguyên hỗ trợ để ghi nhận sự cố. Không tự ý sửa phân công, cước hoặc kết quả thanh
+        toán.
+
+
+        Quyền: operator/admin có support:create. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.'
+      x-function: createSupportCase
+      x-functional-requirements:
+      - FR-22
+      x-authorization: operator/admin có support:create
+      x-status: proposed-contract
+      responses:
+        '201':
+          description: Ghi nhận sự cố chuyến đi thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportCase'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                tripId: 11111111-1111-4111-8111-111111111111
+                description: Khách báo chưa thấy cập nhật trạng thái.
+                status: open
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-11
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportCaseRequest'
+            example:
+              tripId: 11111111-1111-4111-8111-111111111111
+              description: Khách báo chưa thấy cập nhật trạng thái.
+      x-codeSamples:
+      - lang: cURL
+        label: Ghi nhận sự cố chuyến đi
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/operations/support-cases' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Content-Type: application/json' \\\n\
+          \  --data '{\"tripId\": \"11111111-1111-4111-8111-111111111111\", \"description\": \"Khách báo chưa thấy\
+          \ cập nhật trạng thái.\"}'"
+      security:
+      - BearerAuth: []
+    get:
+      tags:
+      - MVP-08
+      summary: Lấy danh sách sự cố chuyến đi
+      operationId: listSupportCases
+      description: 'Danh sách sự cố đã ghi nhận, có phân trang.
+
+
+        Quyền: operator/admin có support:read. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: listSupportCases
+      x-functional-requirements:
+      - FR-22
+      x-authorization: operator/admin có support:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy danh sách sự cố chuyến đi thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportCasePage'
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  tripId: 11111111-1111-4111-8111-111111111111
+                  description: Khách báo chưa thấy cập nhật trạng thái.
+                  status: open
+                  createdAt: '2026-09-13T08:00:00Z'
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: status
+        in: query
+        required: false
+        description: Trạng thái xử lý
+        schema:
+          type: string
+          description: Trạng thái xử lý
+          example: open
+          enum:
+          - open
+          - resolved
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy danh sách sự cố chuyến đi
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/operations/support-cases' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /operations/support-cases/{caseId}:
+    get:
+      tags:
+      - MVP-08
+      summary: Lấy chi tiết sự cố
+      operationId: getSupportCaseById
+      description: 'Tra cứu sự cố cùng tripId để mở chi tiết chuyến/giao dịch.
+
+
+        Quyền: operator/admin có support:read. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: getSupportCaseById
+      x-functional-requirements:
+      - FR-22
+      x-authorization: operator/admin có support:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy chi tiết sự cố thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportCase'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                tripId: 11111111-1111-4111-8111-111111111111
+                description: Khách báo chưa thấy cập nhật trạng thái.
+                status: open
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      parameters:
+      - name: caseId
+        in: path
+        required: true
+        description: Mã caseId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy chi tiết sự cố
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/operations/support-cases/11111111-1111-4111-8111-111111111111'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /operations/support-cases/{caseId}/resolution:
+    post:
+      tags:
+      - MVP-08
+      summary: Ghi nhận kết quả hỗ trợ
+      operationId: resolveSupportCase
+      description: 'Đóng hồ sơ hỗ trợ và lưu ghi chú/audit. Đây không phải quyền sửa tùy ý trạng thái chuyến; thao
+        tác khắc phục có tác động nghiệp vụ khác phải được chốt ở TBD-11.
+
+
+        Quyền: operator/admin có support:resolve. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.
+
+
+        Idempotency-Key bắt buộc: cùng chủ thể + operationId + key và cùng path/query/body trả lại cùng kết quả/tài
+        nguyên, không thực hiện lần hai; đổi path/query/body với cùng key trả 409 IDEMPOTENCY_CONFLICT. Thời hạn
+        lưu key cần được cấu hình trước triển khai.'
+      x-function: resolveSupportCase
+      x-functional-requirements:
+      - FR-22
+      - FR-26
+      x-authorization: operator/admin có support:resolve
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Ghi nhận kết quả hỗ trợ thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportCase'
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                tripId: 11111111-1111-4111-8111-111111111111
+                description: Khách báo chưa thấy cập nhật trạng thái.
+                status: resolved
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-11
+      parameters:
+      - name: caseId
+        in: path
+        required: true
+        description: Mã caseId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveCaseRequest'
+            example:
+              resolutionNote: Đã kiểm tra và hướng dẫn khách đồng bộ lại.
+      x-codeSamples:
+      - lang: cURL
+        label: Ghi nhận kết quả hỗ trợ
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/operations/support-cases/11111111-1111-4111-8111-111111111111/resolution'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Idempotency-Key:\
+          \ example-request-001' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"resolutionNote\": \"\
+          Đã kiểm tra và hướng dẫn khách đồng bộ lại.\"}'"
+      security:
+      - BearerAuth: []
+  /reports/summary:
+    get:
+      tags:
+      - MVP-08
+      summary: Báo cáo số chuyến, doanh thu, tỷ lệ hoàn thành và hủy
+      operationId: getOperationalSummary
+      description: 'Trả bốn nhóm chỉ số theo khoảng [from,to). Chưa chốt định nghĩa tại TBD-13 trả 409 METRIC_DEFINITION_NOT_CONFIGURED;
+        mẫu số bằng 0 trả tỷ lệ null.
+
+
+        Quyền: operator/admin có reports:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-13.'
+      x-function: getOperationalSummary
+      x-functional-requirements:
+      - FR-25
+      x-authorization: operator/admin có reports:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Báo cáo số chuyến, doanh thu, tỷ lệ hoàn thành và hủy thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportSummary'
+              example:
+                from: '2026-09-13T08:00:00Z'
+                to: '2026-09-14T08:00:00Z'
+                tripCount: 100
+                revenueMinor: 8000000
+                currency: VND
+                completionRate: 0.8
+                cancellationRate: 0.1
+                definitionVersion: metrics-example-v1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-13
+      parameters:
+      - name: from
+        in: query
+        required: true
+        description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+        schema:
+          type: string
+          description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      - name: to
+        in: query
+        required: true
+        description: Kết thúc kỳ, không bao gồm
+        schema:
+          type: string
+          description: Kết thúc kỳ, không bao gồm
+          example: '2026-09-14T08:00:00Z'
+          format: date-time
+      x-codeSamples:
+      - lang: cURL
+        label: Báo cáo số chuyến, doanh thu, tỷ lệ hoàn thành và hủy
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/reports/summary?from=2026-09-13T08%3A00%3A00Z&to=2026-09-14T08%3A00%3A00Z'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+  /reports/driver-performance:
+    get:
+      tags:
+      - MVP-08
+      summary: Báo cáo hiệu quả hoạt động tài xế
+      operationId: listDriverPerformance
+      description: 'Nhóm báo cáo thứ năm. Các số offered/accepted/completed là đề xuất; chỉ tính theo định nghĩa
+        đã duyệt. Lọc kỳ [from,to), phân trang theo tài xế.
+
+
+        Quyền: operator/admin có reports:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-13.'
+      x-function: listDriverPerformance
+      x-functional-requirements:
+      - FR-25
+      x-authorization: operator/admin có reports:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Báo cáo hiệu quả hoạt động tài xế thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverPerformancePage'
+              example:
+                items:
+                - driverId: 11111111-1111-4111-8111-111111111111
+                  offeredTrips: 15
+                  acceptedTrips: 12
+                  completedTrips: 10
+                  definitionVersion: metrics-example-v1
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+      x-tbd:
+      - TBD-13
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: from
+        in: query
+        required: true
+        description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+        schema:
+          type: string
+          description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      - name: to
+        in: query
+        required: true
+        description: Kết thúc kỳ, không bao gồm
+        schema:
+          type: string
+          description: Kết thúc kỳ, không bao gồm
+          example: '2026-09-14T08:00:00Z'
+          format: date-time
+      - name: driverId
+        in: query
+        required: false
+        description: Mã định danh
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Báo cáo hiệu quả hoạt động tài xế
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/reports/driver-performance?from=2026-09-13T08%3A00%3A00Z&to=2026-09-14T08%3A00%3A00Z'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+      security:
+      - BearerAuth: []
+components:
+  schemas:
+    AuditLogPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    AuditLog:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        actorReference:
+          type: string
+          description: Người hoặc thành phần hệ thống thực hiện
+          example: system:dispatch
+        action:
+          type: string
+          description: Thao tác
+          example: trip.assigned
+        entityReference:
+          type: string
+          description: Đối tượng tác động
+          example: trip:11111111-1111-4111-8111-111111111111
+        result:
+          type: string
+          description: Kết quả thao tác
+          example: success
+          enum:
+          - success
+          - failure
+        occurredAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      required:
+      - id
+      - actorReference
+      - action
+      - entityReference
+      - result
+      - occurredAt
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        errorCode:
+          type: string
+          description: Mã lỗi nghiệp vụ
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Thông báo dễ hiểu
+          example: Dữ liệu không hợp lệ.
+        traceId:
+          type: string
+          description: Mã truy vết lỗi
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      required:
+      - errorCode
+      - message
+      - traceId
+    PaymentPage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    Payment:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tripId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        method:
+          type: string
+          description: Phương thức
+          example: electronic
+          enum:
+          - cash
+          - electronic
+        amount:
+          type: integer
+          description: Số tiền theo đơn vị nhỏ nhất của currency; VND là đồng. Không nhận số tiền client để tính
+            cước.
+          example: 125000
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          description: Mã tiền tệ
+          example: VND
+          pattern: ^[A-Z]{3}$
+        status:
+          type: string
+          description: pending/processing là chưa có kết quả chắc chắn; không được thu lại
+          example: processing
+          enum:
+          - pending
+          - processing
+          - succeeded
+          - failed
+        providerReference:
+          type: string
+          description: Tham chiếu nhà cung cấp; null với tiền mặt
+          example: provider_tx_example
+          nullable: true
+        checkoutUrl:
+          type: string
+          description: Trang thanh toán do đối tác cung cấp; null khi không cần chuyển hướng Chỉ chủ thanh toán
+            được nhận URL; trả null cho tài xế và vận hành vì URL có thể mang quyền thanh toán.
+          example: https://payments.example.com/checkout/example
+          format: uri
+          nullable: true
+        createdAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      required:
+      - id
+      - tripId
+      - method
+      - amount
+      - currency
+      - status
+      - providerReference
+      - checkoutUrl
+      - createdAt
+    SupportCase:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        tripId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        description:
+          type: string
+          description: Nội dung sự cố
+          example: Khách báo chưa thấy cập nhật trạng thái.
+        status:
+          type: string
+          description: Trạng thái xử lý hỗ trợ
+          example: open
+          enum:
+          - open
+          - resolved
+        createdAt:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      required:
+      - id
+      - tripId
+      - description
+      - status
+      - createdAt
+    SupportCaseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        tripId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        description:
+          type: string
+          description: Thông tin sự cố
+          example: Khách báo chưa thấy cập nhật trạng thái.
+          minLength: 1
+      required:
+      - tripId
+      - description
+    SupportCasePage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportCase'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    ResolveCaseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        resolutionNote:
+          type: string
+          description: Nội dung xử lý; không phải lệnh tùy ý sửa chuyến
+          example: Đã kiểm tra và hướng dẫn khách đồng bộ lại.
+          minLength: 1
+      required:
+      - resolutionNote
+    ReportSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        from:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+        to:
+          type: string
+          description: Thời điểm UTC theo RFC 3339
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+        tripCount:
+          type: integer
+          description: Số chuyến theo kỳ và định nghĩa đã duyệt
+          example: 100
+          minimum: 0
+        revenueMinor:
+          type: integer
+          description: Doanh thu theo đơn vị nhỏ nhất; cách ghi nhận TBD-13
+          example: 8000000
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          description: Mã tiền tệ
+          example: VND
+        completionRate:
+          type: number
+          minimum: 0
+          maximum: 1
+          nullable: true
+          description: Tỷ lệ 0–1; null nếu mẫu số bằng 0; mẫu số TBD-13
+          example: 0.8
+        cancellationRate:
+          type: number
+          minimum: 0
+          maximum: 1
+          nullable: true
+          description: Tỷ lệ 0–1; null nếu mẫu số bằng 0; mẫu số TBD-13
+          example: 0.1
+        definitionVersion:
+          type: string
+          description: Phiên bản định nghĩa chỉ số đã duyệt
+          example: metrics-example-v1
+      required:
+      - from
+      - to
+      - tripCount
+      - revenueMinor
+      - currency
+      - completionRate
+      - cancellationRate
+      - definitionVersion
+    DriverPerformancePage:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DriverPerformance'
+          description: Danh sách
+        page:
+          type: integer
+          description: Trang hiện tại, bắt đầu từ 1
+          example: 1
+          minimum: 1
+        pageSize:
+          type: integer
+          description: Số phần tử tối đa mỗi trang
+          example: 20
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          description: Tổng số bản ghi phù hợp trong phạm vi được phép xem
+          example: 1
+          minimum: 0
+      required:
+      - items
+      - page
+      - pageSize
+      - total
+    DriverPerformance:
+      type: object
+      additionalProperties: false
+      properties:
+        driverId:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+        offeredTrips:
+          type: integer
+          description: Số đề nghị
+          example: 15
+          minimum: 0
+        acceptedTrips:
+          type: integer
+          description: Số nhận
+          example: 12
+          minimum: 0
+        completedTrips:
+          type: integer
+          description: Số hoàn thành
+          example: 10
+          minimum: 0
+        definitionVersion:
+          type: string
+          description: Cách tính hiệu quả là đề xuất theo TBD-13
+          example: metrics-example-v1
+      required:
+      - driverId
+      - offeredTrips
+      - acceptedTrips
+      - completedTrips
+      - definitionVersion
+  responses:
+    BadRequest:
+      description: Dữ liệu hoặc tham số không hợp lệ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: VALIDATION_ERROR
+            message: Dữ liệu hoặc tham số không hợp lệ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unauthorized:
+      description: Thiếu, hết hạn hoặc không hợp lệ thông tin xác thực.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: UNAUTHENTICATED
+            message: Thiếu, hết hạn hoặc không hợp lệ thông tin xác thực.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Forbidden:
+      description: Không đủ quyền hoặc không sở hữu tài nguyên.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: FORBIDDEN
+            message: Không đủ quyền hoặc không sở hữu tài nguyên.
+            traceId: 11111111-1111-4111-8111-111111111111
+    NotFound:
+      description: Không tìm thấy tài nguyên trong phạm vi được phép truy cập.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: RESOURCE_NOT_FOUND
+            message: Không tìm thấy tài nguyên trong phạm vi được phép truy cập.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Conflict:
+      description: Trạng thái xung đột, bản ghi trùng hoặc chính sách chưa được cấu hình.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: STATE_CONFLICT
+            message: Trạng thái xung đột, bản ghi trùng hoặc chính sách chưa được cấu hình.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unprocessable:
+      description: Dữ liệu đúng cấu trúc nhưng không đáp ứng điều kiện nghiệp vụ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: BUSINESS_RULE_VIOLATION
+            message: Dữ liệu đúng cấu trúc nhưng không đáp ứng điều kiện nghiệp vụ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    TooManyRequests:
+      description: Vượt giới hạn yêu cầu theo chính sách vận hành.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: RATE_LIMITED
+            message: Vượt giới hạn yêu cầu theo chính sách vận hành.
+            traceId: 11111111-1111-4111-8111-111111111111
+    InternalError:
+      description: Lỗi hệ thống; không trả chi tiết nội bộ.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: INTERNAL_ERROR
+            message: Lỗi hệ thống; không trả chi tiết nội bộ.
+            traceId: 11111111-1111-4111-8111-111111111111
+    Unavailable:
+      description: Thành phần cần thiết tạm không khả dụng; không đồng nghĩa toàn CAB dừng.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            errorCode: SERVICE_UNAVAILABLE
+            message: Thành phần cần thiết tạm không khả dụng; không đồng nghĩa toàn CAB dừng.
+            traceId: 11111111-1111-4111-8111-111111111111
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Trang bắt đầu từ 1; mặc định đề xuất 1.
+      schema:
+        type: integer
+        description: Trang
+        example: 1
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: Số phần tử mỗi trang; mặc định 20, tối đa 100 là đề xuất kỹ thuật.
+      schema:
+        type: integer
+        description: Kích thước trang
+        example: 20
+        minimum: 1
+        maximum: 100
+        default: 20
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Khóa chống xử lý lặp do client tạo. Phạm vi chủ thể + operationId; payload khác cùng key trả
+        409. Thời hạn lưu theo cấu hình đã duyệt.
+      schema:
+        type: string
+        description: Khóa yêu cầu
+        example: example-request-001
+        minLength: 1
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: Token do đăng nhập cung cấp; không mặc định JWT. Quyền/ownership kiểm tra tại máy chủ.
+tags:
+- name: MVP-08
+  description: Vận hành và báo cáo
