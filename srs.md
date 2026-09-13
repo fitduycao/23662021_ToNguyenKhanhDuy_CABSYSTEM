@@ -674,12 +674,4 @@ Ma trận nối nội dung Word với mục tiêu, nghiệp vụ, chức năng v
 | `10_admin_operations_api.yaml` | `GET /reports/summary` | `getOperationalSummary` | P2 |
 | `10_admin_operations_api.yaml` | `GET /reports/driver-performance` | `listDriverPerformance` | P2 |
 
-### 16.4. Lưu ý khi dùng bộ API hiện có
 
-- Các file `1_auth_api.yaml` đến `10_admin_operations_api.yaml` giữ nguyên endpoint và tên function; mã FR-01–FR-27 tiếp tục được dùng trong SRS này.
-- Mô tả metadata phiên bản API hiện tại có thể nhắc “bản SRS đầy đủ trước đó” hoặc “SRS 2.0”. Bản 3.0 kế thừa mã FR tổng thể; bảng 16.3 là kế hoạch phân kỳ hiện hành. Metadata đó không phải chứng cứ phần mềm đã được triển khai.
-- `customer_profile` là tự quản lý hồ sơ; CRUD user bởi vận hành nằm ở `admin_users`. Hồ sơ/xe tài xế ở `driver_profile`; vị trí ở `location` và tạo tài xế bởi vận hành ở `admin_users`.
-- FR-06/08/13/18/19/26 có xử lý nền; endpoint kích hoạt hoặc đọc dữ liệu không thay thế việc hiện thực các xử lý nền này.
-- Không tạo API mới chỉ để đủ CRUD; không sử dụng việc nhập Swagger thành công để thay kết quả kiểm thử chức năng, tích hợp hay hiệu năng.
-
-**Điều kiện chốt và bàn giao:** Người duyệt xác nhận P1/P2 và các chính sách liên quan; nhóm đánh giá nguồn lực 7 tuần; bàn giao ứng dụng P1, dữ liệu mẫu, hướng dẫn chạy, SRS/API và kết quả kiểm thử AC. P2 được ghi rõ là đặc tả chưa triển khai. Thay đổi phạm vi phải cập nhật đồng bộ bảng phân kỳ, FR, AC, API và kế hoạch.
