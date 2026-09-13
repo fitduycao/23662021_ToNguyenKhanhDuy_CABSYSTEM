@@ -448,6 +448,80 @@ P1 chỉ cần Account, CustomerProfile, DriverProfile, Vehicle, ServiceType và
 API xử lý sự cố P2 bổ sung thực thể **SupportCase** gồm caseId, tripId, description, status, resolutionNote, createdAt và resolvedAt. Một Trip có thể có nhiều SupportCase; mỗi SupportCase thuộc một Trip. Trường ghi chú kết quả/thời điểm giải quyết chỉ có khi đã giải quyết. Đây là cụ thể hóa FR-22, không tạo quyền sửa tùy ý dữ liệu chuyến.
 
 ## 15. USE CASES
+### Sơ đồ Use Case tổng quát – CAB System
+
+```mermaid
+flowchart LR
+    KH["👤 Khách hàng"]
+    TX["👤 Tài xế"]
+    VH["👤 Nhân viên vận hành"]
+    QT["👤 Quản trị"]
+    PAY["Hệ thống thanh toán bên ngoài"]
+
+    subgraph CAB["CAB SYSTEM"]
+        direction TB
+
+        subgraph P1["P1 – Triển khai trong 7 tuần"]
+            UC01(["Đăng ký khách hàng"])
+            UC02(["Đăng nhập"])
+            UC03(["Xem và cập nhật hồ sơ cá nhân"])
+            UC04(["Quản lý khách hàng"])
+            UC05(["Tạo và quản lý tài xế"])
+            UC06(["Quản lý phương tiện"])
+            UC07(["Đổi trạng thái sẵn sàng"])
+            UC08(["Khóa / mở khóa tài khoản"])
+            UC09(["Tra cứu nhật ký thao tác"])
+        end
+
+        subgraph P2["P2 – Đặc tả, phát triển sau"]
+            UC10(["Đặt / hủy chuyến"])
+            UC11(["Nhận / từ chối chuyến"])
+            UC12(["Theo dõi tài xế và ETA"])
+            UC13(["Cập nhật tiến trình chuyến"])
+            UC14(["Thanh toán chuyến đi"])
+            UC15(["Xem lịch sử và đánh giá"])
+            UC16(["Xem thông báo"])
+            UC17(["Giám sát và hỗ trợ chuyến lỗi"])
+            UC18(["Tra cứu giao dịch và báo cáo"])
+            UC19(["Quản lý phân quyền động"])
+        end
+    end
+
+    KH --- UC01
+    KH --- UC02
+    KH --- UC03
+    KH --- UC10
+    KH --- UC12
+    KH --- UC14
+    KH --- UC15
+    KH --- UC16
+
+    TX --- UC02
+    TX --- UC03
+    TX --- UC06
+    TX --- UC07
+    TX --- UC11
+    TX --- UC13
+    TX --- UC16
+
+    VH --- UC02
+    VH --- UC04
+    VH --- UC05
+    VH --- UC06
+    VH --- UC17
+    VH --- UC18
+
+    QT --- UC02
+    QT --- UC08
+    QT --- UC09
+    QT --- UC19
+
+    PAY --- UC14
+
+    style P1 fill:#e8f5e9,stroke:#2e7d32
+    style P2 fill:#fff3e0,stroke:#ef6c00
+```
+
 
 ### 15.1. Danh mục use case
 
