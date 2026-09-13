@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: CAB — reports
+  version: 0.1.0
+  description: Đặc tả đề xuất từ FR-01–FR-27 trong srs.md. Chưa phải backend đã triển khai. Trường dữ liệu, quyền
+    và các chính sách TBD cần duyệt. Domain example.com chỉ minh họa.
+servers:
+- url: https://api.cab.example.com/api/v1
+  description: Địa chỉ minh họa, chưa có dịch vụ hoạt động
+security:
+- BearerAuth: []
+paths:
+  /reports/summary:
+    get:
+      tags:
+      - reports
+      summary: Báo cáo số chuyến, doanh thu, tỷ lệ hoàn thành và hủy
+      operationId: getOperationalSummary
+      description: 'Trả bốn nhóm chỉ số theo khoảng [from,to). Chưa chốt định nghĩa tại TBD-13 trả 409 METRIC_DEFINITION_NOT_CONFIGURED;
+        mẫu số bằng 0 trả tỷ lệ null.
+
+
+        Quyền: operator/admin có reports:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-13.'
+      x-function: getOperationalSummary
+      x-functional-requirements:
+      - FR-25
+      x-authorization: operator/admin có reports:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Báo cáo số chuyến, doanh thu, tỷ lệ hoàn thành và hủy thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/ReportSummary
+              example:
+                from: '2026-09-13T08:00:00Z'
+                to: '2026-09-14T08:00:00Z'
+                tripCount: 100
+                revenueMinor: 8000000
+                currency: VND
+                completionRate: 0.8
+                cancellationRate: 0.1
+                definitionVersion: metrics-example-v1
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      x-tbd:
+      - TBD-13
+      parameters:
+      - name: from
+        in: query
+        required: true
+        description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+        schema:
+          type: string
+          description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      - name: to
+        in: query
+        required: true
+        description: Kết thúc kỳ, không bao gồm
+        schema:
+          type: string
+          description: Kết thúc kỳ, không bao gồm
+          example: '2026-09-14T08:00:00Z'
+          format: date-time
+      x-codeSamples:
+      - lang: cURL
+        label: Báo cáo số chuyến, doanh thu, tỷ lệ hoàn thành và hủy
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/reports/summary?from=2026-09-13T08%3A00%3A00Z&to=2026-09-14T08%3A00%3A00Z'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+  /reports/driver-performance:
+    get:
+      tags:
+      - reports
+      summary: Báo cáo hiệu quả hoạt động tài xế
+      operationId: listDriverPerformance
+      description: 'Nhóm báo cáo thứ năm. Các số offered/accepted/completed là đề xuất; chỉ tính theo định nghĩa
+        đã duyệt. Lọc kỳ [from,to), phân trang theo tài xế.
+
+
+        Quyền: operator/admin có reports:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-13.'
+      x-function: listDriverPerformance
+      x-functional-requirements:
+      - FR-25
+      x-authorization: operator/admin có reports:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Báo cáo hiệu quả hoạt động tài xế thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/DriverPerformancePage
+              example:
+                items:
+                - driverId: 11111111-1111-4111-8111-111111111111
+                  offeredTrips: 15
+                  acceptedTrips: 12
+                  completedTrips: 10
+                  definitionVersion: metrics-example-v1
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      x-tbd:
+      - TBD-13
+      parameters:
+      - $ref: ../common/parameters.yaml#/Page
+      - $ref: ../common/parameters.yaml#/PageSize
+      - name: from
+        in: query
+        required: true
+        description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+        schema:
+          type: string
+          description: Bắt đầu kỳ, bao gồm; phải nhỏ hơn to
+          example: '2026-09-13T08:00:00Z'
+          format: date-time
+      - name: to
+        in: query
+        required: true
+        description: Kết thúc kỳ, không bao gồm
+        schema:
+          type: string
+          description: Kết thúc kỳ, không bao gồm
+          example: '2026-09-14T08:00:00Z'
+          format: date-time
+      - name: driverId
+        in: query
+        required: false
+        description: Mã định danh
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Báo cáo hiệu quả hoạt động tài xế
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/reports/driver-performance?from=2026-09-13T08%3A00%3A00Z&to=2026-09-14T08%3A00%3A00Z'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+components:
+  securitySchemes:
+    BearerAuth:
+      $ref: ../common/security.yaml#/BearerAuth
+    WebhookSignature:
+      $ref: ../common/security.yaml#/WebhookSignature
+tags:
+- name: reports
+  description: Nhóm chức năng reports

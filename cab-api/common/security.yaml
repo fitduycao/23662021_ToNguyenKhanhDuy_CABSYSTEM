@@ -1,0 +1,10 @@
+BearerAuth:
+  type: http
+  scheme: bearer
+  description: Token do đăng nhập cung cấp; không mặc định JWT. Quyền/ownership kiểm tra tại máy chủ.
+WebhookSignature:
+  type: apiKey
+  in: header
+  name: X-CAB-Signature
+  description: Chữ ký hex HMAC-SHA256 của timestamp.rawBody; đây là chữ ký động, không phải khóa API tĩnh. Secret
+    không truyền trong request. Hợp đồng đề xuất TBD-05.

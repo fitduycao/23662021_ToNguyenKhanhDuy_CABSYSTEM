@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: CAB — ratings
+  version: 0.1.0
+  description: Đặc tả đề xuất từ FR-01–FR-27 trong srs.md. Chưa phải backend đã triển khai. Trường dữ liệu, quyền
+    và các chính sách TBD cần duyệt. Domain example.com chỉ minh họa.
+servers:
+- url: https://api.cab.example.com/api/v1
+  description: Địa chỉ minh họa, chưa có dịch vụ hoạt động
+security:
+- BearerAuth: []
+paths:
+  /trips/{tripId}/ratings:
+    post:
+      tags:
+      - ratings
+      summary: Đánh giá tài xế sau chuyến
+      operationId: createTripRating
+      description: 'Chỉ khi completed; không bắt buộc thanh toán thành công. driverId/customerId lấy từ chuyến/token.
+        Đề xuất một đánh giá mỗi chuyến, trùng trả 409 RATING_EXISTS; cần chốt tại TBD-10.
+
+
+        Quyền: Khách sở hữu chuyến. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-10.
+
+
+        Idempotency-Key bắt buộc: cùng chủ thể + operationId + key và cùng path/query/body trả lại cùng kết quả/tài
+        nguyên, không thực hiện lần hai; đổi path/query/body với cùng key trả 409 IDEMPOTENCY_CONFLICT. Thời hạn
+        lưu key cần được cấu hình trước triển khai.'
+      x-function: createTripRating
+      x-functional-requirements:
+      - FR-12
+      x-authorization: Khách sở hữu chuyến
+      x-status: proposed-contract
+      responses:
+        '201':
+          description: Đánh giá tài xế sau chuyến thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/Rating
+              example:
+                id: 11111111-1111-4111-8111-111111111111
+                tripId: 11111111-1111-4111-8111-111111111111
+                customerId: 11111111-1111-4111-8111-111111111111
+                driverId: 11111111-1111-4111-8111-111111111111
+                score: 5
+                comment: Tài xế đến đúng điểm đón.
+                createdAt: '2026-09-13T08:00:00Z'
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      x-tbd:
+      - TBD-10
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã tripId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ../common/parameters.yaml#/IdempotencyKey
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: ../common/schemas.yaml#/RatingRequest
+            example:
+              score: 5
+              comment: Tài xế đến đúng điểm đón.
+      x-codeSamples:
+      - lang: cURL
+        label: Đánh giá tài xế sau chuyến
+        source: "curl -X POST 'https://api.cab.example.com/api/v1/trips/11111111-1111-4111-8111-111111111111/ratings'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Idempotency-Key:\
+          \ example-request-001' \\\n  -H 'Content-Type: application/json' \\\n  --data '{\"score\": 5, \"comment\"\
+          : \"Tài xế đến đúng điểm đón.\"}'"
+    get:
+      tags:
+      - ratings
+      summary: Lấy đánh giá của chuyến
+      operationId: listTripRatings
+      description: 'Tra cứu đánh giá phục vụ màn hình sau chuyến. Không mặc định công khai toàn bộ nhận xét cá nhân.
+
+
+        Quyền: Khách của chuyến; vai trò khác theo quyền đã duyệt. Đề xuất thiết kế API; cần xác nhận chính sách
+        tại TBD-10, TBD-11.'
+      x-function: listTripRatings
+      x-functional-requirements:
+      - FR-12
+      x-authorization: Khách của chuyến; vai trò khác theo quyền đã duyệt
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy đánh giá của chuyến thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/RatingPage
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  tripId: 11111111-1111-4111-8111-111111111111
+                  customerId: 11111111-1111-4111-8111-111111111111
+                  driverId: 11111111-1111-4111-8111-111111111111
+                  score: 5
+                  comment: Tài xế đến đúng điểm đón.
+                  createdAt: '2026-09-13T08:00:00Z'
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      x-tbd:
+      - TBD-10
+      - TBD-11
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã tripId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      - $ref: ../common/parameters.yaml#/Page
+      - $ref: ../common/parameters.yaml#/PageSize
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy đánh giá của chuyến
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/trips/11111111-1111-4111-8111-111111111111/ratings'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+components:
+  securitySchemes:
+    BearerAuth:
+      $ref: ../common/security.yaml#/BearerAuth
+    WebhookSignature:
+      $ref: ../common/security.yaml#/WebhookSignature
+tags:
+- name: ratings
+  description: Nhóm chức năng ratings

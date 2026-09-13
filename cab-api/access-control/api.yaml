@@ -1,0 +1,271 @@
+openapi: 3.0.3
+info:
+  title: CAB — access-control
+  version: 0.1.0
+  description: Đặc tả đề xuất từ FR-01–FR-27 trong srs.md. Chưa phải backend đã triển khai. Trường dữ liệu, quyền
+    và các chính sách TBD cần duyệt. Domain example.com chỉ minh họa.
+servers:
+- url: https://api.cab.example.com/api/v1
+  description: Địa chỉ minh họa, chưa có dịch vụ hoạt động
+security:
+- BearerAuth: []
+paths:
+  /roles:
+    get:
+      tags:
+      - access-control
+      summary: Lấy danh sách vai trò
+      operationId: listRoles
+      description: 'Tra cứu vai trò đã cấu hình và quyền tương ứng; không cho người thường tự cấp quyền.
+
+
+        Quyền: admin có roles:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.'
+      x-function: listRoles
+      x-functional-requirements:
+      - FR-24
+      x-authorization: admin có roles:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy danh sách vai trò thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/RolePage
+              example:
+                items:
+                - id: 11111111-1111-4111-8111-111111111111
+                  name: operator
+                  permissions:
+                  - users:read
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      x-tbd:
+      - TBD-11
+      parameters:
+      - $ref: ../common/parameters.yaml#/Page
+      - $ref: ../common/parameters.yaml#/PageSize
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy danh sách vai trò
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/roles' \\\n  -H 'Accept: application/json' \\\n\
+          \  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+  /permissions:
+    get:
+      tags:
+      - access-control
+      summary: Lấy danh mục quyền
+      operationId: listPermissions
+      description: 'Danh mục quyền do hệ thống định nghĩa. Mỗi endpoint kiểm tra quyền và sở hữu tài nguyên tại
+        máy chủ.
+
+
+        Quyền: admin có roles:read. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.'
+      x-function: listPermissions
+      x-functional-requirements:
+      - FR-24
+      x-authorization: admin có roles:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy danh mục quyền thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/PermissionPage
+              example:
+                items:
+                - code: users:read
+                  description: Tra cứu khách hàng
+                page: 1
+                pageSize: 20
+                total: 1
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      x-tbd:
+      - TBD-11
+      parameters:
+      - $ref: ../common/parameters.yaml#/Page
+      - $ref: ../common/parameters.yaml#/PageSize
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy danh mục quyền
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/permissions' \\\n  -H 'Accept: application/json'\
+          \ \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+  /users/{userId}/roles:
+    get:
+      tags:
+      - access-control
+      summary: Lấy các vai trò của tài khoản
+      operationId: getUserRoles
+      description: 'Tra cứu các vai trò được gán cho tài khoản.
+
+
+        Quyền: admin có roles:read. Kiểm tra quyền và phạm vi tài nguyên tại máy chủ.'
+      x-function: getUserRoles
+      x-functional-requirements:
+      - FR-24
+      x-authorization: admin có roles:read
+      x-status: proposed-contract
+      responses:
+        '200':
+          description: Lấy các vai trò của tài khoản thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/RoleAssignments
+              example:
+                userId: 11111111-1111-4111-8111-111111111111
+                roleIds:
+                - 11111111-1111-4111-8111-111111111111
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      x-codeSamples:
+      - lang: cURL
+        label: Lấy các vai trò của tài khoản
+        source: "curl -X GET 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111/roles'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN'"
+    put:
+      tags:
+      - access-control
+      summary: Gán hoặc thay thế vai trò tài khoản
+      operationId: assignUserRoles
+      description: 'Đề xuất thao tác nhạy cảm: chỉ gán vai trò được phép; không tự nâng quyền hoặc xóa quản trị
+        cuối cùng. Tài khoản nhận vai trò driver/customer phải có hồ sơ tương ứng trước khi gán, nếu thiếu trả 409
+        PROFILE_REQUIRED. Cập nhật có hiệu lực với mọi yêu cầu sau đó và ghi audit.
+
+
+        Quyền: admin có roles:assign. Đề xuất thiết kế API; cần xác nhận chính sách tại TBD-11.'
+      x-function: assignUserRoles
+      x-functional-requirements:
+      - FR-24
+      - FR-26
+      x-authorization: admin có roles:assign
+      x-status: proposed-extension
+      responses:
+        '200':
+          description: Gán hoặc thay thế vai trò tài khoản thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ../common/schemas.yaml#/RoleAssignments
+              example:
+                userId: 11111111-1111-4111-8111-111111111111
+                roleIds:
+                - 11111111-1111-4111-8111-111111111111
+        '400':
+          $ref: ../common/responses.yaml#/BadRequest
+        '401':
+          $ref: ../common/responses.yaml#/Unauthorized
+        '403':
+          $ref: ../common/responses.yaml#/Forbidden
+        '404':
+          $ref: ../common/responses.yaml#/NotFound
+        '409':
+          $ref: ../common/responses.yaml#/Conflict
+        '422':
+          $ref: ../common/responses.yaml#/Unprocessable
+        '429':
+          $ref: ../common/responses.yaml#/TooManyRequests
+        '500':
+          $ref: ../common/responses.yaml#/InternalError
+        '503':
+          $ref: ../common/responses.yaml#/Unavailable
+      x-tbd:
+      - TBD-11
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        description: Mã userId; luôn kiểm tra quyền với đối tượng tương ứng
+        schema:
+          type: string
+          description: Mã định danh
+          example: 11111111-1111-4111-8111-111111111111
+          format: uuid
+      requestBody:
+        required: true
+        description: 'Dữ liệu đầu vào; Content-Type: application/json. Trường không được khai báo bị từ chối.'
+        content:
+          application/json:
+            schema:
+              $ref: ../common/schemas.yaml#/RoleAssignmentRequest
+            example:
+              roleIds:
+              - 11111111-1111-4111-8111-111111111111
+      x-codeSamples:
+      - lang: cURL
+        label: Gán hoặc thay thế vai trò tài khoản
+        source: "curl -X PUT 'https://api.cab.example.com/api/v1/users/11111111-1111-4111-8111-111111111111/roles'\
+          \ \\\n  -H 'Accept: application/json' \\\n  -H 'Authorization: Bearer EXAMPLE_ACCESS_TOKEN' \\\n  -H 'Content-Type:\
+          \ application/json' \\\n  --data '{\"roleIds\": [\"11111111-1111-4111-8111-111111111111\"]}'"
+components:
+  securitySchemes:
+    BearerAuth:
+      $ref: ../common/security.yaml#/BearerAuth
+    WebhookSignature:
+      $ref: ../common/security.yaml#/WebhookSignature
+tags:
+- name: access-control
+  description: Nhóm chức năng access-control
