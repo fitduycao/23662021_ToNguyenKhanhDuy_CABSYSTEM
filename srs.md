@@ -1157,11 +1157,4 @@ Khách hàng đã nêu rằng **chính sách hủy chuyến chưa được chố
 
 ---
 
-# Kết luận B9–B13
-
-Sau bước B13, chuỗi truy vết của CAB System được kiểm soát theo hướng:
-
-**Customer Requirement → Business Requirement → Functional/NFR → Use Case → Acceptance Criteria → Traceability Matrix**
-
-Các yêu cầu chưa được khách hàng xác nhận được giữ ở trạng thái **TBD** để tránh tự đặt luật nghiệp vụ và giúp nhóm dễ giải thích khi báo cáo/vấn đáp.
 
